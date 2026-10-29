@@ -14,6 +14,14 @@
   const { EmochordAudioEngine } = window.EmochordAudio;
   const { NoteFlowVisualizer } = window.EmochordVisualizer;
 
+  const i18n = window.EmochordI18n || {
+    t: (k, fb) => fb || k,
+    getLang: () => 'en',
+    setLanguage: () => {},
+    toggleLanguage: () => {}
+  };
+  if (window.EmochordI18n) window.EmochordI18n.init();
+
   // Uygulama Durumu
   const state = {
     appMode: 'free', // 'free' | 'wait' | 'rhythm' | 'listen'
@@ -68,6 +76,9 @@
   const quickMidiText = document.getElementById('quickMidiText');
   const btnQuickHelp = document.getElementById('btnQuickHelp');
   const btnQuickFullscreen = document.getElementById('btnQuickFullscreen');
+  const btnQuickLang = document.getElementById('btnQuickLang');
+  const quickLangLabel = document.getElementById('quickLangLabel');
+  const langSelect = document.getElementById('langSelect');
 
   // Ekran Boyu İlerleme Çubuğu
   const timelineWrap = document.getElementById('timelineWrap');
@@ -205,6 +216,100 @@
     return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   }
 
+  function getDisplaySongTitle(song) {
+    if (!song) return '';
+    const id = song.id || (demoSelect ? demoSelect.value : '');
+    if (id && i18n.t(`songs.${id}`)) {
+      return i18n.t(`songs.${id}`).replace(/^[^\w\s]*\s*/, '').replace(/\s*\(.*?\)$/, '');
+    }
+    return song.title || '';
+  }
+
+  function refreshDropdownOptions() {
+    const demoOpts = {
+      twinkle: i18n.t('songs.twinkle'),
+      fur_elise: i18n.t('songs.fur_elise'),
+      ode_to_joy: i18n.t('songs.ode_to_joy'),
+      turkish_march: i18n.t('songs.turkish_march'),
+      bach_prelude: i18n.t('songs.bach_prelude'),
+      recorded: i18n.t('songs.recorded')
+    };
+    for (const [val, text] of Object.entries(demoOpts)) {
+      const opt = demoSelect ? demoSelect.querySelector(`option[value="${val}"]`) : null;
+      if (opt && text) opt.textContent = text;
+    }
+
+    const instOpts = {
+      grand_piano: i18n.t('keyboardControls.instruments.grand_piano'),
+      electric_piano: i18n.t('keyboardControls.instruments.electric_piano'),
+      neon_synth: i18n.t('keyboardControls.instruments.neon_synth'),
+      drawbar_organ: i18n.t('keyboardControls.instruments.drawbar_organ'),
+      music_box: i18n.t('keyboardControls.instruments.music_box')
+    };
+    for (const [val, text] of Object.entries(instOpts)) {
+      const opt = instrumentSelect ? instrumentSelect.querySelector(`option[value="${val}"]`) : null;
+      if (opt && text) opt.textContent = text;
+    }
+
+    const rangeOpts = {
+      '88': i18n.t('keyboardControls.sizes.88'),
+      '61': i18n.t('keyboardControls.sizes.61'),
+      '49': i18n.t('keyboardControls.sizes.49'),
+      '37': i18n.t('keyboardControls.sizes.37')
+    };
+    for (const [val, text] of Object.entries(rangeOpts)) {
+      const opt = rangeSelect ? rangeSelect.querySelector(`option[value="${val}"]`) : null;
+      if (opt && text) opt.textContent = text;
+    }
+
+    const themeOpts = {
+      classic: i18n.t('visualsControls.themes.classic'),
+      aurora: i18n.t('visualsControls.themes.aurora'),
+      luminary: i18n.t('visualsControls.themes.luminary'),
+      cyberpunk: i18n.t('visualsControls.themes.cyberpunk'),
+      emerald: i18n.t('visualsControls.themes.emerald'),
+      fire: i18n.t('visualsControls.themes.fire'),
+      rainbow: i18n.t('visualsControls.themes.rainbow')
+    };
+    for (const [val, text] of Object.entries(themeOpts)) {
+      const opt = themeSelect ? themeSelect.querySelector(`option[value="${val}"]`) : null;
+      if (opt && text) opt.textContent = text;
+    }
+
+    const labelOpts = {
+      both: i18n.t('visualsControls.keyLabels.both'),
+      pc: i18n.t('visualsControls.keyLabels.pc'),
+      note: i18n.t('visualsControls.keyLabels.note'),
+      tr: i18n.t('visualsControls.keyLabels.tr'),
+      none: i18n.t('visualsControls.keyLabels.none')
+    };
+    for (const [val, text] of Object.entries(labelOpts)) {
+      const opt = labelModeSelect ? labelModeSelect.querySelector(`option[value="${val}"]`) : null;
+      if (opt && text) opt.textContent = text;
+    }
+
+    const handOpts = {
+      both: i18n.t('hands.both'),
+      right: i18n.t('hands.right'),
+      left: i18n.t('hands.left')
+    };
+    for (const [val, text] of Object.entries(handOpts)) {
+      const btn = handModeGroup ? handModeGroup.querySelector(`button[data-hand="${val}"]`) : null;
+      if (btn && text) btn.textContent = text;
+    }
+
+    const modeOpts = {
+      free: i18n.t('modesLong.free'),
+      wait: i18n.t('modesLong.wait'),
+      rhythm: i18n.t('modesLong.rhythm'),
+      listen: i18n.t('modesLong.listen')
+    };
+    for (const [val, text] of Object.entries(modeOpts)) {
+      const btn = appModeGroup ? appModeGroup.querySelector(`button[data-mode="${val}"]`) : null;
+      if (btn && text) btn.textContent = text;
+    }
+  }
+
   async function loadInitialSettings() {
     try {
       let saved = null;
@@ -289,12 +394,19 @@
       }
     }
     const labels = {
-      free: 'SERBEST ÇALMA',
-      wait: 'PRATİK: TUŞ BEKLEMELİ',
-      rhythm: 'PRATİK: AKAN RİTİM',
-      listen: 'İZLE & DİNLE'
+      free: i18n.t('drawerBadges.free', 'FREE PLAY'),
+      wait: i18n.t('drawerBadges.wait', 'WAIT PRACTICE'),
+      rhythm: i18n.t('drawerBadges.rhythm', 'RHYTHM PRACTICE'),
+      listen: i18n.t('drawerBadges.listen', 'LISTEN & WATCH')
     };
-    modeBadge.textContent = labels[state.appMode] || 'SERBEST ÇALMA';
+    modeBadge.textContent = labels[state.appMode] || i18n.t('drawerBadges.free', 'FREE PLAY');
+
+    if (quickModeGroup) {
+      for (const btn of quickModeGroup.querySelectorAll('.q-mode-btn')) {
+        const m = btn.dataset.mode;
+        btn.textContent = i18n.t(`modes.${m}`, btn.textContent);
+      }
+    }
   }
 
   function updateHandButtonsUI() {
@@ -347,8 +459,8 @@
   function loadSelectedSongIntoPractice(autoStart = false) {
     const song = getSelectedSongObject();
     if (!song) {
-      setTextCached(lcdChord, 'chord', 'Henüz Kayıt Yok');
-      setTextCached(lcdNotes, 'notes', 'Önce "Kayıt" butonuna basıp birkaç nota çalın veya bir parça seçin');
+      setTextCached(lcdChord, 'chord', i18n.t('lcd.noRecording', 'No Recording Yet'));
+      setTextCached(lcdNotes, 'notes', i18n.t('lcd.noRecordingSub', 'Click "Record" and play some notes first, or choose a song'));
       return false;
     }
 
@@ -370,7 +482,7 @@
     timeTotal.textContent = formatTime(practice.durationMs);
     setTextCached(timeCurrent, 'timeCur', '00:00');
     if (quickSongTitle) {
-      quickSongTitle.textContent = song.title || 'Parça';
+      quickSongTitle.textContent = getDisplaySongTitle(song) || song.title || 'Piece';
     }
     if (quickSongTime) {
       quickSongTime.textContent = `00:00 / ${formatTime(practice.durationMs)}`;
@@ -426,7 +538,7 @@
     const running = state.appMode !== 'free' && practice.isPlaying && !practice.isPaused;
     btnPlayPause.classList.toggle('playing', running);
     playSeqIcon.textContent = running ? '⏸' : '▶';
-    playSeqLabel.textContent = running ? 'Duraklat' : 'Başlat';
+    playSeqLabel.textContent = running ? i18n.t('pause', 'Pause') : i18n.t('play', 'Play');
     if (quickPlayIcon) {
       quickPlayIcon.textContent = running ? '⏸' : '▶';
     }
@@ -523,15 +635,15 @@
           const pc = visualizer.pcLabels.get(n.midi);
           const noteStr = useTr ? info.fullNameTr : info.fullName;
           if (!pc && !octaveHint) {
-            octaveHint = n.midi < lowPcMidi ? ' (Oktav Düşür: ←)' : ' (Oktav Yükselt: →)';
+            octaveHint = n.midi < lowPcMidi ? i18n.t('lcd.octaveDown', ' (Octave Down: ←)') : i18n.t('lcd.octaveUp', ' (Octave Up: →)');
           }
           return pc ? `${noteStr} [${pc}]` : noteStr;
         });
-        setTextCached(lcdChord, 'chord', `🎯 Beklenen Tuş: ${names.join(' + ')}`);
+        setTextCached(lcdChord, 'chord', `${i18n.t('lcd.expectedKey', '🎯 Expected Key')}: ${names.join(' + ')}`);
         setTextCached(
           lcdNotes,
           'notes',
-          `İlerleme: ${practice.stats.completedTargets} / ${practice.stats.totalTargets} Nota${octaveHint}`
+          `${i18n.t('lcd.progress', 'Progress')}: ${practice.stats.completedTargets} / ${practice.stats.totalTargets} ${i18n.t('lcd.notesCount', 'Notes')}${octaveHint}`
         );
         return;
       }
@@ -540,19 +652,24 @@
     const activeMidis = Array.from(visualizer.pressedKeys.keys()).sort((a, b) => a - b);
     if (activeMidis.length === 0) {
       if (highway.isRecording) {
-        setTextCached(lcdChord, 'chord', '● Kayıt Yapılıyor...');
-        setTextCached(lcdNotes, 'notes', 'Çaldığınız tüm notalar kaydediliyor');
+        setTextCached(lcdChord, 'chord', i18n.t('lcd.recording', '● Recording in Progress...'));
+        setTextCached(lcdNotes, 'notes', i18n.t('lcd.recordingDesc', 'All played notes are being recorded'));
       } else if (state.appMode !== 'free' && practice.song) {
-        const handLabels = { both: 'İki El', right: 'Sağ El', left: 'Sol El' };
-        setTextCached(lcdChord, 'chord', `🎼 ${practice.song.title}`);
+        const handLabels = {
+          both: i18n.t('hands.labelsMap.both', 'Both Hands'),
+          right: i18n.t('hands.labelsMap.right', 'Right Hand'),
+          left: i18n.t('hands.labelsMap.left', 'Left Hand')
+        };
+        const songTitle = getDisplaySongTitle(practice.song) || practice.song.title;
+        setTextCached(lcdChord, 'chord', `🎼 ${songTitle}`);
         setTextCached(
           lcdNotes,
           'notes',
-          `${handLabels[state.handMode]} • ${practice.stats.completedTargets}/${practice.stats.totalTargets} Nota`
+          `${handLabels[state.handMode] || ''} • ${practice.stats.completedTargets}/${practice.stats.totalTargets} ${i18n.t('lcd.notesCount', 'Notes')}`
         );
       } else {
-        setTextCached(lcdChord, 'chord', 'Serbest Piyano Hazır');
-        setTextCached(lcdNotes, 'notes', 'Klavye (Z–M / Q–Ü), Fare veya MIDI Org ile çalın');
+        setTextCached(lcdChord, 'chord', i18n.t('liveHud.chordReady', 'Free Piano Ready'));
+        setTextCached(lcdNotes, 'notes', i18n.t('liveHud.notesHint', 'Play with Keyboard, Mouse or MIDI'));
       }
       return;
     }
@@ -733,17 +850,17 @@
     if (inputs.length === 0) {
       const opt = document.createElement('option');
       opt.value = '';
-      opt.textContent = 'MIDI: Cihaz Bekleniyor (Tak-Çalıştır)';
+      opt.textContent = i18n.t('midi.inputStandby', 'MIDI: Standby / Plug & Play');
       midiInputSelect.appendChild(opt);
       midiDot.classList.remove('connected');
       if (quickMidiDot) quickMidiDot.classList.remove('connected');
-      if (quickMidiText) quickMidiText.textContent = 'MIDI: Bekleniyor';
+      if (quickMidiText) quickMidiText.textContent = i18n.t('midi.standby', 'MIDI: Standby');
       return;
     }
 
     const allOpt = document.createElement('option');
     allOpt.value = '__all__';
-    allOpt.textContent = `🎹 Tüm MIDI Cihazları (${inputs.length})`;
+    allOpt.textContent = `🎹 All MIDI Devices (${inputs.length})`;
     midiInputSelect.appendChild(allOpt);
 
     for (const input of inputs) {
@@ -758,7 +875,7 @@
     midiInputSelect.value = selectedMidiInputId;
     midiDot.classList.add('connected');
     if (quickMidiDot) quickMidiDot.classList.add('connected');
-    if (quickMidiText) quickMidiText.textContent = `MIDI: Bağlı (${inputs.length})`;
+    if (quickMidiText) quickMidiText.textContent = `${i18n.t('midi.connected', 'MIDI: Connected')} (${inputs.length})`;
   }
 
   function handleMidiMessage(inputId, event) {
@@ -798,27 +915,27 @@
     if (highway.isRecording) {
       const notes = highway.stopRecording(performance.now());
       btnRecord.classList.remove('recording');
-      recordLabel.textContent = 'Kayıt';
+      recordLabel.textContent = i18n.t('buttons.record', 'Record');
 
       if (notes.length > 0) {
         demoSelect.value = 'recorded';
         btnSaveRec.disabled = false;
         loadSelectedSongIntoPractice(false);
-        setTextCached(lcdChord, 'chord', `Kayıt Tamamlandı (${notes.length} Nota)`);
+        setTextCached(lcdChord, 'chord', i18n.t('lcd.recordDone', 'Recording Complete ({count} Notes)').replace('{count}', notes.length));
         setTextCached(
           lcdNotes,
           'notes',
-          'Başlat butonuna basarak kaydınızla pratik yapabilir veya MIDI olarak indirebilirsiniz'
+          i18n.t('lcd.recordDoneSub', 'Press Play to practice with your recording or download as MIDI')
         );
       } else {
-        setTextCached(lcdChord, 'chord', 'Kayıt Durduruldu (Nota Yok)');
+        setTextCached(lcdChord, 'chord', i18n.t('lcd.recordEmpty', 'Recording Stopped (No Notes)'));
       }
     } else {
       setAppMode('free', false);
       highway.startRecording(performance.now());
       btnRecord.classList.add('recording');
-      recordLabel.textContent = 'Bitir';
-      modeBadge.textContent = '● KAYIT YAPILIYOR';
+      recordLabel.textContent = i18n.t('buttons.recordStop', 'Stop');
+      modeBadge.textContent = i18n.t('lcd.recording', '● RECORDING IN PROGRESS');
       updateLcdHud();
     }
   }
@@ -1126,14 +1243,18 @@
   function showSummaryModal() {
     const rep = practice.getSummaryReport();
     sumRank.textContent = rep.rank;
-    sumTitle.textContent = rep.title;
+    sumTitle.textContent = getDisplaySongTitle(practice.song) || rep.title;
     const modeNames = {
-      wait: 'Tuş Beklemeli Pratik',
-      rhythm: 'Akan Ritim Pratiği',
-      listen: 'İzle & Dinle'
+      wait: i18n.t('summary.modeNames.wait', 'Wait Practice'),
+      rhythm: i18n.t('summary.modeNames.rhythm', 'Rhythm Practice'),
+      listen: i18n.t('summary.modeNames.listen', 'Watch & Listen')
     };
-    const handNames = { both: 'İki El', right: 'Sağ El', left: 'Sol El' };
-    sumSub.textContent = `${modeNames[rep.mode] || 'Pratik'} • ${handNames[rep.handMode]}`;
+    const handNames = {
+      both: i18n.t('hands.labelsMap.both', 'Both Hands'),
+      right: i18n.t('hands.labelsMap.right', 'Right Hand'),
+      left: i18n.t('hands.labelsMap.left', 'Left Hand')
+    };
+    sumSub.textContent = `${modeNames[rep.mode] || 'Practice'} • ${handNames[rep.handMode] || ''}`;
     sumScore.textContent = String(rep.score);
     sumAccuracy.textContent = `%${rep.accuracy}`;
     sumStreak.textContent = `${rep.maxStreak}x`;
@@ -1264,6 +1385,32 @@
     } else {
       document.exitFullscreen?.().catch(() => {});
     }
+  });
+
+  if (btnQuickLang) {
+    btnQuickLang.addEventListener('click', () => {
+      i18n.toggleLanguage();
+    });
+  }
+
+  if (langSelect) {
+    langSelect.value = i18n.getLang();
+    langSelect.addEventListener('change', () => {
+      i18n.setLanguage(langSelect.value);
+    });
+  }
+
+  window.addEventListener('emochord:languagechange', (e) => {
+    const lang = e.detail?.lang || i18n.getLang();
+    if (quickLangLabel) quickLangLabel.textContent = lang.toUpperCase();
+    if (langSelect && langSelect.value !== lang) langSelect.value = lang;
+    refreshDropdownOptions();
+    updateModeButtonsUI();
+    syncPlayPauseButton();
+    if (practice.song && quickSongTitle) {
+      quickSongTitle.textContent = getDisplaySongTitle(practice.song);
+    }
+    updateLcdHud();
   });
 
   // 3 Çizgi Ayarlar Çekmecesi ve Hızlı Kontroller

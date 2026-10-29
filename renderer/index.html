@@ -1,22 +1,22 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data:;" />
-  <title>Emochord v2 – Modern Piyano &amp; MIDI Pratik Stüdyosu</title>
+  <title data-i18n="appName">Emochord v2 – Modern Piano &amp; MIDI Practice Studio</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
   <div class="app-shell">
     <!-- 1. EKRAN BOYU İLERLEME ÇUBUĞU (TIKLAYINCA O SANİYEYE ATLAR) -->
     <header class="noteflow-topbar" id="noteFlowTopbar">
-      <div class="noteflow-timeline-wrap" id="timelineWrap" title="Parça içinde istediğiniz saniyeye gitmek için tıklayın veya sürükleyin">
+      <div class="noteflow-timeline-wrap" id="timelineWrap" title="Click or drag to jump to any time in the piece" data-i18n-title="timelineTooltip">
         <div class="noteflow-loop-region" id="timelineLoopRegion" hidden></div>
         <div class="noteflow-timeline-progress" id="timelineProgress"></div>
         <div class="noteflow-timeline-hover-line" id="timelineHoverLine"></div>
         <div class="noteflow-timeline-hover-time" id="timelineHoverTime">00:00</div>
-        <input type="range" id="timelineSlider" min="0" max="1000" value="0" aria-label="İlerleme Çubuğu" />
+        <input type="range" id="timelineSlider" min="0" max="1000" value="0" aria-label="Timeline Slider" />
       </div>
     </header>
 
@@ -24,19 +24,19 @@
     <div class="top-overlay-bar">
       <!-- Sol Küme: Menü + Oynatma + Hızlı Mod Seçimi -->
       <div class="top-overlay-left">
-        <button id="btnMenuToggle" class="btn-menu-toggle" title="Stüdyo Ayarları ve Menü (M)" aria-label="Ayarlar Menüsü">
+        <button id="btnMenuToggle" class="btn-menu-toggle" title="Studio Settings &amp; Menu (M)" data-i18n-title="menuToggle" aria-label="Settings Menu" data-i18n-aria="menuToggleAria">
           <span class="hamburger-bar"></span>
           <span class="hamburger-bar"></span>
           <span class="hamburger-bar"></span>
         </button>
 
         <div class="quick-transport-pill" id="quickTransportPill">
-          <button id="btnQuickRestart" class="quick-icon-btn" title="Başa Sar">
+          <button id="btnQuickRestart" class="quick-icon-btn" title="Restart" data-i18n-title="restart">
             <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true">
               <path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/>
             </svg>
           </button>
-          <button id="btnQuickPlay" class="quick-play-btn" title="Başlat / Duraklat">
+          <button id="btnQuickPlay" class="quick-play-btn" title="Play / Pause" data-i18n-title="playPause">
             <span id="quickPlayIcon">▶</span>
           </button>
           <div class="quick-song-meta">
@@ -45,11 +45,11 @@
           </div>
         </div>
 
-        <div class="quick-mode-pill" id="quickModeGroup" role="tablist" aria-label="Hızlı Mod Seçimi">
-          <button class="q-mode-btn active" data-mode="free" title="Serbest Piyano Modu">Serbest</button>
-          <button class="q-mode-btn" data-mode="wait" title="Tuş Beklemeli Pratik">Pratik</button>
-          <button class="q-mode-btn" data-mode="rhythm" title="Akan Ritim Pratiği">Ritim</button>
-          <button class="q-mode-btn" data-mode="listen" title="İzle ve Dinle">Dinle</button>
+        <div class="quick-mode-pill" id="quickModeGroup" role="tablist" aria-label="Quick Mode Select">
+          <button class="q-mode-btn active" data-mode="free" title="Free Piano Mode" data-i18n="modes.free">Free</button>
+          <button class="q-mode-btn" data-mode="wait" title="Wait Practice Mode" data-i18n="modes.wait">Practice</button>
+          <button class="q-mode-btn" data-mode="rhythm" title="Rhythm Practice Mode" data-i18n="modes.rhythm">Rhythm</button>
+          <button class="q-mode-btn" data-mode="listen" title="Watch &amp; Listen Mode" data-i18n="modes.listen">Listen</button>
         </div>
       </div>
 
@@ -57,39 +57,45 @@
       <div class="top-overlay-center">
         <div class="live-hud-pill" id="liveHudPill">
           <div class="live-hud-status">
-            <span class="live-hud-chord" id="hudLiveChord">Serbest Piyano Hazır</span>
-            <span class="live-hud-notes" id="hudLiveNotes">Klavye, Fare veya MIDI ile çalın</span>
+            <span class="live-hud-chord" id="hudLiveChord" data-i18n="liveHud.chordReady">Free Piano Ready</span>
+            <span class="live-hud-notes" id="hudLiveNotes" data-i18n="liveHud.notesHint">Play with Keyboard, Mouse or MIDI</span>
           </div>
           <div class="live-hud-divider"></div>
           <div class="live-hud-metrics">
-            <div class="hud-metric" title="Toplam Skor">
-              <span class="hud-metric-label">SKOR</span>
+            <div class="hud-metric" title="Total Score">
+              <span class="hud-metric-label" data-i18n="liveHud.scoreLabel">SCORE</span>
               <span class="hud-metric-val accent-sky" id="hudLiveScore">0</span>
             </div>
-            <div class="hud-metric" title="Kombo Serisi">
-              <span class="hud-metric-label">SERİ</span>
+            <div class="hud-metric" title="Streak Combo">
+              <span class="hud-metric-label" data-i18n="liveHud.streakLabel">STREAK</span>
               <span class="hud-metric-val accent-amber" id="hudLiveStreak">0x</span>
             </div>
-            <div class="hud-vu-wrap" title="Ses Çıkış Seviyesi">
+            <div class="hud-vu-wrap" title="Audio Level">
               <div class="hud-vu-bar"><div class="hud-vu-fill" id="hudVuFill"></div></div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Sağ Küme: Sustain + MIDI + Yardım + Tam Ekran -->
+      <!-- Sağ Küme: Sustain + MIDI + Dil + Yardım + Tam Ekran -->
       <div class="top-overlay-right">
-        <button id="quickSustainBtn" class="quick-sustain-pill" title="Sustain Pedalı (Boşluk Tuşu)">
+        <button id="quickSustainBtn" class="quick-sustain-pill" title="Sustain Pedal (Spacebar)" data-i18n-title="sustain.tooltip">
           <span class="sustain-dot"></span>
-          <span>Pedal</span>
+          <span data-i18n="sustain.pedal">Pedal</span>
         </button>
 
-        <div class="quick-midi-badge" id="quickMidiBadge" title="MIDI Cihaz Bağlantısı">
+        <div class="quick-midi-badge" id="quickMidiBadge" title="MIDI Device Connection">
           <span class="quick-midi-dot" id="quickMidiDot"></span>
-          <span class="quick-midi-text" id="quickMidiText">MIDI: Bekleniyor</span>
+          <span class="quick-midi-text" id="quickMidiText" data-i18n="midi.standby">MIDI: Standby</span>
         </div>
 
-        <button id="btnQuickHelp" class="btn-quick-icon" title="Klavye Rehberi &amp; Kısayollar">
+        <!-- DİL DEĞİŞTİRİCİ BUTONU (EN / TR) -->
+        <button id="btnQuickLang" class="quick-lang-pill" title="Switch Language (EN / TR)" data-i18n-title="buttons.langToggle" aria-label="Switch Language">
+          <span style="font-size:12px;">🌐</span>
+          <span id="quickLangLabel">EN</span>
+        </button>
+
+        <button id="btnQuickHelp" class="btn-quick-icon" title="Keyboard Guide &amp; Shortcuts" data-i18n-title="buttons.help">
           <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="12" cy="12" r="10"/>
             <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
@@ -97,7 +103,7 @@
           </svg>
         </button>
 
-        <button id="btnQuickFullscreen" class="btn-quick-icon" title="Tam Ekran (F11)">
+        <button id="btnQuickFullscreen" class="btn-quick-icon" title="Fullscreen (F11)" data-i18n-title="buttons.fullscreen">
           <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
           </svg>
@@ -122,10 +128,10 @@
           </div>
           <div>
             <h2 class="drawer-title">EMOCHORD STUDIO</h2>
-            <span class="drawer-sub" id="modeBadge">SERBEST ÇALMA</span>
+            <span class="drawer-sub" id="modeBadge" data-i18n="drawerBadges.free">FREE PLAY</span>
           </div>
         </div>
-        <button id="btnCloseMenu" class="drawer-close-btn" title="Kapat (Esc)">✕</button>
+        <button id="btnCloseMenu" class="drawer-close-btn" title="Close (Esc)" data-i18n-title="buttons.close">✕</button>
       </div>
 
       <div class="drawer-body">
@@ -133,43 +139,43 @@
         <section class="settings-section-card">
           <div class="section-card-title">
             <span class="card-icon-badge">🎼</span>
-            <span>Parça &amp; MIDI Kütüphanesi</span>
+            <span data-i18n="sections.library">Song &amp; MIDI Library</span>
           </div>
 
           <div class="card-row">
-            <select id="demoSelect" class="studio-select song-select w-full" title="Çalışmak istediğiniz parçayı seçin">
-              <option value="twinkle">🌟 Başlangıç: Küçük Yıldız (Kolay Pratik)</option>
-              <option value="fur_elise" selected>🎼 Beethoven – Für Elise</option>
-              <option value="ode_to_joy">🎼 Beethoven – Neşeye Övgü</option>
-              <option value="turkish_march">🎼 Mozart – Türk Marşı (Alla Turca)</option>
-              <option value="bach_prelude">🎼 Bach – C Majör Prelüd</option>
-              <option value="recorded">🎙️ Kaydım (Serbest Çalma)</option>
+            <select id="demoSelect" class="studio-select song-select w-full" title="Choose a song to practice" data-i18n-title="songs.selectTitle">
+              <option value="twinkle" data-i18n="songs.twinkle">🌟 Beginner: Twinkle Twinkle (Easy Practice)</option>
+              <option value="fur_elise" selected data-i18n="songs.fur_elise">🎼 Beethoven – Für Elise</option>
+              <option value="ode_to_joy" data-i18n="songs.ode_to_joy">🎼 Beethoven – Ode to Joy</option>
+              <option value="turkish_march" data-i18n="songs.turkish_march">🎼 Mozart – Turkish March (Alla Turca)</option>
+              <option value="bach_prelude" data-i18n="songs.bach_prelude">🎼 Bach – Prelude in C Major</option>
+              <option value="recorded" data-i18n="songs.recorded">🎙️ My Recording (Free Play)</option>
             </select>
           </div>
 
           <div class="card-row flex-wrap gap-8">
-            <button id="btnOpenFile" class="btn btn-primary-outline flex-1" title="Bilgisayardan .mid / .midi dosyası aç">
-              <span>📂 MIDI Dosyası Aç</span>
+            <button id="btnOpenFile" class="btn btn-primary-outline flex-1" title="Open .mid / .midi file from computer" data-i18n-title="buttons.openFile">
+              <span data-i18n="buttons.openFile">📂 Open MIDI File</span>
             </button>
             <input type="file" id="hiddenFileInput" accept=".mid,.midi,.json" hidden />
 
-            <button id="btnRecord" class="btn btn-record" title="Serbest çaldıklarınızı kaydedin">
+            <button id="btnRecord" class="btn btn-record" title="Record your free play performance">
               <span class="rec-dot"></span>
-              <span id="recordLabel">Kayıt</span>
+              <span id="recordLabel" data-i18n="buttons.record">Record</span>
             </button>
 
-            <button id="btnSaveRec" class="btn btn-ghost" title="Son kaydı .mid olarak indir" disabled>
-              💾 MIDI İndir
+            <button id="btnSaveRec" class="btn btn-ghost" title="Download last recording as .mid" disabled data-i18n="buttons.saveMidi">
+              💾 Download MIDI
             </button>
           </div>
 
           <div class="card-row transport-buttons-row">
-            <button id="btnRestartSong" class="btn btn-icon btn-sm" title="Başa Sar">⏮</button>
-            <button id="btnPlayPause" class="btn btn-play btn-sm flex-1" title="Başlat veya Duraklat">
+            <button id="btnRestartSong" class="btn btn-icon btn-sm" title="Restart" data-i18n-title="restart">⏮</button>
+            <button id="btnPlayPause" class="btn btn-play btn-sm flex-1" title="Play / Pause" data-i18n-title="playPause">
               <span id="playSeqIcon">▶</span>
-              <span id="playSeqLabel">Başlat</span>
+              <span id="playSeqLabel" data-i18n="play">Play</span>
             </button>
-            <button id="btnStopSong" class="btn btn-icon btn-sm" title="Durdur">■</button>
+            <button id="btnStopSong" class="btn btn-icon btn-sm" title="Stop" data-i18n-title="stop">■</button>
             <div class="time-display-box">
               <span class="time-label" id="timeCurrent">00:00</span>
               <span class="time-sep">/</span>
@@ -182,52 +188,52 @@
         <section class="settings-section-card">
           <div class="section-card-title">
             <span class="card-icon-badge">🎯</span>
-            <span>Pratik Modları &amp; Eller</span>
+            <span data-i18n="sections.practice">Practice Modes &amp; Hands</span>
           </div>
 
           <div class="card-field">
-            <label class="field-label">Çalışma Modu</label>
+            <label class="field-label" data-i18n="practiceFields.modeLabel">Practice Mode</label>
             <div class="segmented-group flex-wrap" id="appModeGroup" role="tablist">
-              <button class="seg-btn active" data-mode="free" title="Serbest Piyano: Bastığınız notalar yukarı doğru akar">🎹 Serbest Çal</button>
-              <button class="seg-btn" data-mode="wait" title="Beklemeli Pratik: Tuşa basmanızı bekler">🎯 Pratik (Tuş Beklemeli)</button>
-              <button class="seg-btn" data-mode="rhythm" title="Akan Ritim Pratiği: Puanlamalı">⏱️ Ritim Pratiği</button>
-              <button class="seg-btn" data-mode="listen" title="İzle &amp; Dinle: Otomatik çalar">▶️ İzle &amp; Dinle</button>
+              <button class="seg-btn active" data-mode="free" title="Free Piano Mode: Played notes flow upward" data-i18n="modesLong.free">🎹 Free Piano</button>
+              <button class="seg-btn" data-mode="wait" title="Wait Practice: Pauses until you strike the correct key" data-i18n="modesLong.wait">🎯 Wait Mode</button>
+              <button class="seg-btn" data-mode="rhythm" title="Rhythm Practice: Scored continuous flow" data-i18n="modesLong.rhythm">⏱️ Rhythm</button>
+              <button class="seg-btn" data-mode="listen" title="Watch &amp; Listen: Plays automatically" data-i18n="modesLong.listen">▶️ Watch &amp; Listen</button>
             </div>
           </div>
 
           <div class="card-field">
-            <label class="field-label">Pratik Eli</label>
+            <label class="field-label" data-i18n="hands.label">Hands to Play</label>
             <div class="segmented-group" id="handModeGroup">
-              <button class="seg-btn active" data-hand="both">🙌 İki El</button>
-              <button class="seg-btn" data-hand="right">🤚 Sağ El</button>
-              <button class="seg-btn" data-hand="left">✋ Sol El</button>
+              <button class="seg-btn active" data-hand="both" data-i18n="hands.both">🙌 Both Hands</button>
+              <button class="seg-btn" data-hand="right" data-i18n="hands.right">🤚 Right Hand</button>
+              <button class="seg-btn" data-hand="left" data-i18n="hands.left">✋ Left Hand</button>
             </div>
           </div>
 
           <div class="card-row flex-wrap items-center justify-between gap-10">
             <div class="ctrl-item">
-              <label>Tempo Hızı</label>
+              <label data-i18n="practiceFields.tempoLabel">Tempo / Speed</label>
               <div class="stepper">
-                <button id="btnTempoDown" class="step-btn" title="Yavaşlat (−%10)">−</button>
+                <button id="btnTempoDown" class="step-btn" title="Slow down (-10%)" data-i18n-title="practiceFields.slowDown">−</button>
                 <span id="tempoValue" class="step-val">%100</span>
-                <button id="btnTempoUp" class="step-btn" title="Hızlandır (+%10)">+</button>
+                <button id="btnTempoUp" class="step-btn" title="Speed up (+10%)" data-i18n-title="practiceFields.speedUp">+</button>
               </div>
             </div>
 
             <div class="ctrl-item">
-              <label>A–B Bölüm Döngüsü</label>
-              <div class="loop-controls" title="A-B Tekrar Döngüsü">
-                <button id="btnLoopA" class="btn-mini">A Seç</button>
-                <button id="btnLoopB" class="btn-mini">B Seç</button>
-                <button id="btnLoopClear" class="btn-mini" title="Döngüyü Temizle" disabled>✕</button>
+              <label data-i18n="practiceFields.loopLabel">A–B Loop Section</label>
+              <div class="loop-controls" title="A-B Loop Practice">
+                <button id="btnLoopA" class="btn-mini" data-i18n="practiceFields.setA">Set A</button>
+                <button id="btnLoopB" class="btn-mini" data-i18n="practiceFields.setB">Set B</button>
+                <button id="btnLoopClear" class="btn-mini" title="Clear Loop" data-i18n-title="practiceFields.clearLoop" disabled>✕</button>
               </div>
             </div>
 
             <div class="ctrl-item">
-              <label>Ritim Rehberi</label>
-              <button id="btnMetronome" class="btn-toggle btn-sm" title="Metronom Tık Sesi">
+              <label data-i18n="practiceFields.metronomeLabel">Rhythm Guide</label>
+              <button id="btnMetronome" class="btn-toggle btn-sm" title="Metronome Click">
                 <span class="led"></span>
-                <span>⏱ Metronom</span>
+                <span data-i18n="buttons.metronome">⏱ Metronome</span>
               </button>
             </div>
           </div>
@@ -237,35 +243,35 @@
         <section class="settings-section-card">
           <div class="section-card-title">
             <span class="card-icon-badge">🎹</span>
-            <span>Piyano Klavyesi &amp; Ses Motoru</span>
+            <span data-i18n="sections.keyboard">Piano Keyboard &amp; Sound Engine</span>
           </div>
 
           <div class="grid-2-col">
             <div class="ctrl-item">
-              <label for="instrumentSelect">Enstrüman Sesi</label>
+              <label for="instrumentSelect" data-i18n="keyboardControls.instrumentLabel">Instrument Sound</label>
               <select id="instrumentSelect" class="studio-select">
-                <option value="grand_piano">🎹 Konser Piyanosu (Grand)</option>
-                <option value="electric_piano">✨ Elektrik Piyano (Rhodes)</option>
-                <option value="neon_synth">🎛️ Neon Synth</option>
-                <option value="drawbar_organ">⛪ Hammond / Kilise Orgu</option>
-                <option value="music_box">💎 Kristal Müzik Kutusu</option>
+                <option value="grand_piano" data-i18n="keyboardControls.instruments.grand_piano">🎹 Concert Grand Piano</option>
+                <option value="electric_piano" data-i18n="keyboardControls.instruments.electric_piano">✨ Electric Piano (Rhodes)</option>
+                <option value="neon_synth" data-i18n="keyboardControls.instruments.neon_synth">🎛️ Neon Synth</option>
+                <option value="drawbar_organ" data-i18n="keyboardControls.instruments.drawbar_organ">⛪ Church / Organ</option>
+                <option value="music_box" data-i18n="keyboardControls.instruments.music_box">💎 Crystal Music Box</option>
               </select>
             </div>
 
             <div class="ctrl-item">
-              <label for="rangeSelect">Piyano Boyutu</label>
+              <label for="rangeSelect" data-i18n="keyboardControls.sizeLabel">Piano Size</label>
               <select id="rangeSelect" class="studio-select">
-                <option value="88">88 Tuş (Tam Piyano A0–C8)</option>
-                <option value="61" selected>61 Tuş (Standart Org C2–C7)</option>
-                <option value="49">49 Tuş (Stüdyo C2–C6)</option>
-                <option value="37">37 Tuş (Kompakt C3–C6)</option>
+                <option value="88" data-i18n="keyboardControls.sizes.88">88 Keys (Full Piano A0–C8)</option>
+                <option value="61" selected data-i18n="keyboardControls.sizes.61">61 Keys (Standard C2–C7)</option>
+                <option value="49" data-i18n="keyboardControls.sizes.49">49 Keys (Studio C2–C6)</option>
+                <option value="37" data-i18n="keyboardControls.sizes.37">37 Keys (Compact C3–C6)</option>
               </select>
             </div>
           </div>
 
           <div class="card-row flex-wrap items-center justify-between gap-10">
             <div class="ctrl-item">
-              <label>Oktav <span class="hint">(←/→)</span></label>
+              <label><span data-i18n="keyboardControls.octaveLabel">Octave</span> <span class="hint">(←/→)</span></label>
               <div class="stepper">
                 <button id="btnOctaveDown" class="step-btn">−</button>
                 <span id="octaveValue" class="step-val">C3–G5</span>
@@ -274,7 +280,7 @@
             </div>
 
             <div class="ctrl-item">
-              <label>Transpoze <span class="hint">(↓/↑)</span></label>
+              <label><span data-i18n="keyboardControls.transposeLabel">Transpose</span> <span class="hint">(↓/↑)</span></label>
               <div class="stepper">
                 <button id="btnTransposeDown" class="step-btn">−</button>
                 <span id="transposeValue" class="step-val">0</span>
@@ -283,10 +289,10 @@
             </div>
 
             <div class="ctrl-item">
-              <label>Pedal <span class="hint">(Space)</span></label>
-              <button id="btnSustain" class="btn-toggle" title="Sustain Pedalı">
+              <label><span data-i18n="keyboardControls.pedalLabel">Pedal</span> <span class="hint">(Space)</span></label>
+              <button id="btnSustain" class="btn-toggle" title="Sustain Pedal">
                 <span class="led"></span>
-                <span>Sustain</span>
+                <span data-i18n="sustain.open">Sustain</span>
               </button>
             </div>
           </div>
@@ -296,62 +302,71 @@
         <section class="settings-section-card">
           <div class="section-card-title">
             <span class="card-icon-badge">🎨</span>
-            <span>Görsel Tema, Akustik &amp; Efektler</span>
+            <span data-i18n="sections.visuals">Visual Themes, Acoustics &amp; Settings</span>
           </div>
 
-          <div class="grid-2-col">
+          <div class="grid-3-col">
             <div class="ctrl-item">
-              <label for="themeSelect">Renk Teması</label>
+              <label for="themeSelect" data-i18n="visualsControls.themeLabel">Color Theme</label>
               <select id="themeSelect" class="studio-select">
-                <option value="classic">Klasik (Yeşil &amp; Mavi)</option>
-                <option value="aurora">✨ Aurora Fresh (Su Yeşili &amp; Gök)</option>
-                <option value="luminary">🔮 Luminary Studio (Mor &amp; Mercan)</option>
-                <option value="cyberpunk">⚡ Cyberpunk Neon</option>
-                <option value="emerald">💎 Zümrüt &amp; Altın</option>
-                <option value="fire">🔥 Ateş &amp; Kor</option>
-                <option value="rainbow">🌈 Kromatik Gökkuşağı</option>
+                <option value="classic" data-i18n="visualsControls.themes.classic">Classic (Green &amp; Blue)</option>
+                <option value="aurora" data-i18n="visualsControls.themes.aurora">✨ Aurora Fresh (Teal &amp; Sky)</option>
+                <option value="luminary" data-i18n="visualsControls.themes.luminary">🔮 Luminary Studio (Purple &amp; Coral)</option>
+                <option value="cyberpunk" data-i18n="visualsControls.themes.cyberpunk">⚡ Cyberpunk Neon</option>
+                <option value="emerald" data-i18n="visualsControls.themes.emerald">💎 Emerald &amp; Gold</option>
+                <option value="fire" data-i18n="visualsControls.themes.fire">🔥 Fire &amp; Amber</option>
+                <option value="rainbow" data-i18n="visualsControls.themes.rainbow">🌈 Chromatic Rainbow</option>
               </select>
             </div>
 
             <div class="ctrl-item">
-              <label for="labelModeSelect">Tuş Etiketleri</label>
+              <label for="labelModeSelect" data-i18n="visualsControls.keyLabelsLabel">Key Labels</label>
               <select id="labelModeSelect" class="studio-select">
-                <option value="both">Klavye Harfi + Nota</option>
-                <option value="pc">Sadece Klavye Harfi</option>
-                <option value="note">Nota İsimleri (C, D, E)</option>
-                <option value="tr">Türkçe Nota (Do, Re, Mi)</option>
-                <option value="none">Etiketleri Gizle</option>
+                <option value="both" data-i18n="visualsControls.keyLabels.both">Key Letter + Note (C4 / Q)</option>
+                <option value="pc" data-i18n="visualsControls.keyLabels.pc">Key Letter Only (Q)</option>
+                <option value="note" data-i18n="visualsControls.keyLabels.note">Note Names (C, D, E)</option>
+                <option value="tr" data-i18n="visualsControls.keyLabels.tr">Solfège (Do, Re, Mi)</option>
+                <option value="none" data-i18n="visualsControls.keyLabels.none">Hide Labels</option>
+              </select>
+            </div>
+
+            <!-- DİL SEÇİMİ (SETTINGS DRAWER) -->
+            <div class="ctrl-item">
+              <label for="langSelect" data-i18n="visualsControls.languageLabel">Language / Dil</label>
+              <select id="langSelect" class="studio-select">
+                <option value="en" selected>English (US)</option>
+                <option value="tr">Türkçe</option>
               </select>
             </div>
           </div>
 
           <div class="grid-3-col">
             <div class="ctrl-item slider-item">
-              <label for="speedSlider">Akış Hızı</label>
+              <label for="speedSlider" data-i18n="visualsControls.speedLabel">Note Fall Speed</label>
               <input type="range" id="speedSlider" min="90" max="480" step="10" value="220" />
             </div>
 
             <div class="ctrl-item slider-item">
-              <label for="reverbSlider">Akustik Reverb</label>
+              <label for="reverbSlider" data-i18n="visualsControls.reverbLabel">Hall Reverb</label>
               <input type="range" id="reverbSlider" min="0" max="100" step="5" value="28" />
             </div>
 
             <div class="ctrl-item slider-item">
-              <label for="volumeSlider">Ana Ses</label>
+              <label for="volumeSlider" data-i18n="visualsControls.volumeLabel">Master Volume</label>
               <input type="range" id="volumeSlider" min="0" max="100" step="2" value="85" />
             </div>
           </div>
 
           <div class="card-row flex-wrap gap-10">
-            <button id="btnParticles" class="btn-toggle flex-1" title="Tuş vuruşlarında modern ışık dalgası ve mikro kıvılcım efektleri">
+            <button id="btnParticles" class="btn-toggle flex-1" title="Lighting wave and micro spark effects">
               <span class="led"></span>
-              <span>✨ Işık &amp; Kıvılcım Efektleri</span>
+              <span data-i18n="buttons.particles">✨ Visual Lighting Effects</span>
             </button>
             <button id="btnHelp" class="btn btn-icon-text flex-1">
-              <span>❓ Klavye Rehberi</span>
+              <span data-i18n="buttons.helpModalBtn">❓ Keyboard Guide</span>
             </button>
             <button id="btnFullscreen" class="btn btn-icon-text">
-              <span>⛶ Tam Ekran</span>
+              <span data-i18n="buttons.fullscreenBtn">⛶ Fullscreen</span>
             </button>
           </div>
         </section>
@@ -360,13 +375,13 @@
         <section class="settings-section-card">
           <div class="section-card-title">
             <span class="card-icon-badge">🔌</span>
-            <span>MIDI / USB Klavye &amp; Org Bağlantısı</span>
+            <span data-i18n="sections.midi">MIDI / USB Keyboard Connection</span>
           </div>
 
-          <div class="midi-status-box" id="midiStatusBox" title="USB/MIDI Cihazı">
+          <div class="midi-status-box" id="midiStatusBox" title="USB/MIDI Device" data-i18n-title="midi.deviceBox">
             <span class="midi-dot" id="midiDot"></span>
-            <select id="midiInputSelect" class="midi-select" aria-label="MIDI Giriş Cihazı">
-              <option value="">MIDI: Tak-Çalıştır Bekleniyor</option>
+            <select id="midiInputSelect" class="midi-select" aria-label="MIDI Input Device">
+              <option value="" data-i18n="midi.inputStandby">MIDI: Standby / Plug &amp; Play</option>
             </select>
           </div>
         </section>
@@ -375,29 +390,29 @@
         <section class="settings-section-card">
           <div class="section-card-title">
             <span class="card-icon-badge">📊</span>
-            <span>Canlı Akor, Nota &amp; Performans Monitörü</span>
+            <span data-i18n="sections.monitor">Live Chord, Note &amp; Performance Monitor</span>
           </div>
 
           <div class="lcd-monitor">
             <div class="lcd-main">
-              <div class="lcd-chord" id="lcdChord">Hazır — Çalmaya Başlayın</div>
-              <div class="lcd-notes" id="lcdNotes">Bilgisayar klavyesi, fare veya MIDI org ile çalabilirsiniz</div>
+              <div class="lcd-chord" id="lcdChord" data-i18n="lcd.chordReady">Ready — Start Playing</div>
+              <div class="lcd-notes" id="lcdNotes" data-i18n="lcd.notesReady">Play with computer keyboard, mouse or MIDI keyboard</div>
             </div>
             <div class="lcd-meters">
               <div class="lcd-stat">
-                <span class="stat-label">SKOR</span>
+                <span class="stat-label" data-i18n="lcd.score">SCORE</span>
                 <span class="stat-val score-val" id="lcdScore">0</span>
               </div>
               <div class="lcd-stat">
-                <span class="stat-label">SERİ</span>
+                <span class="stat-label" data-i18n="lcd.streak">STREAK</span>
                 <span class="stat-val streak-val" id="lcdStreak">0x</span>
               </div>
               <div class="lcd-stat">
-                <span class="stat-label">DOĞRULUK</span>
+                <span class="stat-label" data-i18n="lcd.accuracy">ACCURACY</span>
                 <span class="stat-val" id="lcdAccuracy">%100</span>
               </div>
               <div class="lcd-stat">
-                <span class="stat-label">SES</span>
+                <span class="stat-label" data-i18n="lcd.audio">AUDIO</span>
                 <div class="vu-track"><div class="vu-fill" id="vuFill"></div></div>
               </div>
             </div>
@@ -414,8 +429,8 @@
       <div class="drop-overlay" id="dropOverlay" hidden>
         <div class="drop-box">
           <div class="drop-icon">🎼</div>
-          <div class="drop-title">MIDI (.mid) veya Kayıt Dosyasını Buraya Bırakın</div>
-          <div class="drop-sub">Serbest dinleyebilir veya Tuş Beklemeli Pratik modunda çalışabilirsiniz</div>
+          <div class="drop-title" data-i18n="drop.title">Drop MIDI (.mid) or Recording File Here</div>
+          <div class="drop-sub" data-i18n="drop.sub">Play freely or practice in Wait Mode</div>
         </div>
       </div>
     </main>
@@ -424,46 +439,46 @@
     <div class="modal-backdrop" id="summaryModal" hidden>
       <div class="modal-card summary-card">
         <div class="modal-header">
-          <h2>🏆 Pratik Tamamlandı – Performans Karnesi</h2>
+          <h2 data-i18n="summary.title">🏆 Practice Complete – Performance Report</h2>
           <button id="btnCloseSummary" class="btn btn-icon">✕</button>
         </div>
         <div class="modal-body">
           <div class="summary-hero">
             <div class="rank-badge" id="sumRank">S</div>
             <div class="summary-meta">
-              <h3 id="sumTitle">Parça Adı</h3>
-              <p id="sumSub">Tuş Beklemeli Pratik • İki El</p>
+              <h3 id="sumTitle">Song Title</h3>
+              <p id="sumSub">Wait Practice • Both Hands</p>
             </div>
           </div>
           <div class="summary-stats-grid">
             <div class="sum-box">
-              <span class="sum-label">TOPLAM SKOR</span>
+              <span class="sum-label" data-i18n="summary.score">TOTAL SCORE</span>
               <span class="sum-val" id="sumScore">0</span>
             </div>
             <div class="sum-box">
-              <span class="sum-label">DOĞRULUK</span>
+              <span class="sum-label" data-i18n="summary.accuracy">ACCURACY</span>
               <span class="sum-val" id="sumAccuracy">%100</span>
             </div>
             <div class="sum-box">
-              <span class="sum-label">EN YÜKSEK SERİ</span>
+              <span class="sum-label" data-i18n="summary.streak">MAX STREAK</span>
               <span class="sum-val" id="sumStreak">0x</span>
             </div>
             <div class="sum-box">
-              <span class="sum-label">MÜKEMMEL / İYİ</span>
+              <span class="sum-label" data-i18n="summary.hits">PERFECT / GOOD</span>
               <span class="sum-val" id="sumHits">0 / 0</span>
             </div>
             <div class="sum-box">
-              <span class="sum-label">YANLIŞ TUŞ</span>
+              <span class="sum-label" data-i18n="summary.wrong">WRONG KEYS</span>
               <span class="sum-val" id="sumWrong">0</span>
             </div>
             <div class="sum-box">
-              <span class="sum-label">KAÇIRILAN NOTA</span>
+              <span class="sum-label" data-i18n="summary.missed">MISSED NOTES</span>
               <span class="sum-val" id="sumMissed">0</span>
             </div>
           </div>
           <div class="summary-actions">
-            <button id="btnRetryPractice" class="btn btn-play">🔄 Tekrar Çalış</button>
-            <button id="btnSummaryFreePlay" class="btn">🎹 Serbest Moda Dön</button>
+            <button id="btnRetryPractice" class="btn btn-play" data-i18n="summary.retry">🔄 Retry Practice</button>
+            <button id="btnSummaryFreePlay" class="btn" data-i18n="summary.free">🎹 Back to Free Play</button>
           </div>
         </div>
       </div>
@@ -473,39 +488,39 @@
     <div class="modal-backdrop" id="helpModal" hidden>
       <div class="modal-card">
         <div class="modal-header">
-          <h2>🎹 Emochord Studio – Pratik &amp; Kontroller Rehberi</h2>
+          <h2 data-i18n="help.title">🎹 Emochord Studio – Practice &amp; Controls Guide</h2>
           <button id="btnCloseHelp" class="btn btn-icon">✕</button>
         </div>
         <div class="modal-body">
           <div class="help-grid">
             <div class="help-section">
-              <h3>1. Pratik Modları</h3>
+              <h3 data-i18n="help.section1">1. Practice Modes</h3>
               <ul>
-                <li><strong>🎯 Pratik (Tuş Beklemeli):</strong> Notalar yukarıdan klavyeye doğru akar. Nota tuşa ulaştığında şarkı duraklar ve tuşun üzerinde ışıklı rehber görünür. Doğru tuşa bastığınızda şarkı akmaya devam eder!</li>
-                <li><strong>⏱️ Ritim Pratiği:</strong> Şarkı durmadan akar; zamanlamanıza göre puan ve kombo serisi kazanırsınız.</li>
-                <li><strong>🤚 Sağ El / ✋ Sol El:</strong> Tek eli seçtiğinizde diğer el stüdyo tarafından otomatik çalınır!</li>
+                <li data-i18n-html="help.waitDesc"><strong>🎯 Practice (Wait Mode):</strong> Notes flow down toward the keys. The song pauses at each note until you hit the right key, with visual guides. Accompaniment notes remain synced!</li>
+                <li data-i18n-html="help.rhythmDesc"><strong>⏱️ Rhythm Practice:</strong> The song flows continuously; timing accuracy awards points and combo multipliers.</li>
+                <li data-i18n-html="help.handDesc"><strong>🤚 Right Hand / ✋ Left Hand:</strong> Pick one hand to practice; the other hand is played automatically by the studio!</li>
               </ul>
             </div>
             <div class="help-section">
-              <h3>2. Bilgisayar Klavyesi ile Çalma (2 Oktav)</h3>
+              <h3 data-i18n="help.section2">2. Computer Keyboard Controls (2 Octaves)</h3>
               <ul>
-                <li><strong>Üst Sıra Beyaz Tuşlar (C4–G5):</strong> <code>Q W E R T Y U I O P Ğ Ü</code></li>
-                <li><strong>Üst Sıra Siyah Tuşlar:</strong> <code>2 3</code> &nbsp; <code>5 6 7</code> &nbsp; <code>9 0 =</code></li>
-                <li><strong>Alt Sıra Beyaz Tuşlar (C3–E4):</strong> <code>Z X C V B N M Ö Ç .</code></li>
-                <li><strong>Alt Sıra Siyah Tuşlar:</strong> <code>S D</code> &nbsp; <code>G H J</code> &nbsp; <code>L Ş</code></li>
+                <li data-i18n-html="help.whiteUpper"><strong>Upper Row White Keys (C4–G5):</strong> <code>Q W E R T Y U I O P Ğ Ü</code></li>
+                <li data-i18n-html="help.blackUpper"><strong>Upper Row Black Keys:</strong> <code>2 3</code> &nbsp; <code>5 6 7</code> &nbsp; <code>9 0 =</code></li>
+                <li data-i18n-html="help.whiteLower"><strong>Lower Row White Keys (C3–E4):</strong> <code>Z X C V B N M Ö Ç .</code></li>
+                <li data-i18n-html="help.blackLower"><strong>Lower Row Black Keys:</strong> <code>S D</code> &nbsp; <code>G H J</code> &nbsp; <code>L Ş</code></li>
               </ul>
             </div>
             <div class="help-section">
-              <h3>3. A–B Bölüm Döngüsü &amp; İlerleme Çubuğu</h3>
-              <p>Ekranın en üstündeki ışıklı ilerleme çubuğuna tıklayarak istediğiniz saniyeye anında geçiş yapabilirsiniz. Zor kısımlar için A ve B noktalarını seçerek döngüye alabilirsiniz.</p>
+              <h3 data-i18n="help.section3">3. A–B Loop Practice &amp; Timeline</h3>
+              <p data-i18n="help.loopDesc">Click anywhere on the glowing top timeline bar to scrub immediately. Set A and B points to loop difficult sections on repeat.</p>
             </div>
             <div class="help-section">
-              <h3>4. Hızlı Kısayollar</h3>
+              <h3 data-i18n="help.section4">4. Quick Shortcuts</h3>
               <ul>
-                <li><strong>Ayarlar Çekmecesi:</strong> <code>M</code> tuşu</li>
-                <li><strong>Sustain Pedalı:</strong> <code>Boşluk (Space)</code></li>
-                <li><strong>Oktav / Transpoze:</strong> <code>← →</code> ve <code>↓ ↑</code> ok tuşları</li>
-                <li><strong>Tüm Sesleri Sustur / Kapat:</strong> <code>Esc</code></li>
+                <li data-i18n-html="help.s1"><strong>Settings Drawer:</strong> <code>M</code> key</li>
+                <li data-i18n-html="help.s2"><strong>Sustain Pedal:</strong> <code>Spacebar</code></li>
+                <li data-i18n-html="help.s3"><strong>Octave / Transpose:</strong> <code>← →</code> and <code>↓ ↑</code> arrow keys</li>
+                <li data-i18n-html="help.s4"><strong>Mute All Notes:</strong> <code>Esc</code></li>
               </ul>
             </div>
           </div>
@@ -518,6 +533,7 @@
   <script src="../lib/note-highway.js"></script>
   <script src="../lib/midi-parser.js"></script>
   <script src="../lib/practice-engine.js"></script>
+  <script src="./i18n.js"></script>
   <script src="./audio-engine.js"></script>
   <script src="./visualizer.js"></script>
   <script src="./app.js"></script>

@@ -72,7 +72,8 @@
 
     flashWrongKey(midi) {
       this.wrongKeyFlashes.set(midi, 1.0);
-      this.spawnFeedbackText(midi, 'YANLIŞ', '#fb7185');
+      const wrongText = window.EmochordI18n ? window.EmochordI18n.t('visualizer.wrong', 'MISS') : 'MISS';
+      this.spawnFeedbackText(midi, wrongText, '#fb7185');
     }
 
     spawnFeedbackText(midi, text, color = '#2dd4bf') {
@@ -364,7 +365,8 @@
           ctx.stroke();
 
           if (isMeasure && b > 0 && y > 24 && y < h - 12) {
-            const label = `ÖLÇÜ ${Math.floor(b / 4) + 1}`;
+            const barWord = window.EmochordI18n ? window.EmochordI18n.t('visualizer.bar', 'BAR') : 'BAR';
+            const label = `${barWord} ${Math.floor(b / 4) + 1}`;
             ctx.fillStyle = 'rgba(148, 163, 196, 0.28)';
             ctx.font = '700 9.5px Inter, system-ui, sans-serif';
             ctx.textAlign = 'left';
