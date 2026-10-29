@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Emolili999/emochord-v2/blob/main/LICENSE"><img src="https://img.shields.io/badge/lisans-MIT-blue.svg?style=flat-square" alt="Lisans: MIT" /></a>
+  <a href="https://github.com/Emolili999/emo-chord/blob/main/LICENSE"><img src="https://img.shields.io/badge/lisans-MIT-blue.svg?style=flat-square" alt="Lisans: MIT" /></a>
   <img src="https://img.shields.io/badge/platform-Linux%20%7C%20Windows-blue.svg?style=flat-square" alt="Platform" />
   <img src="https://img.shields.io/badge/node-%3E%3D18-green.svg?style=flat-square" alt="Node" />
   <img src="https://img.shields.io/badge/çevrimdışı-%25100%20yerel-success.svg?style=flat-square" alt="Çevrimdışı" />
@@ -87,8 +87,8 @@ Emochord, Web Audio API üzerine kurulu algoritmik bir ses sentezleyici kullanı
 ### Depoyu Klonlama ve Bağımlılıklar
 
 ```bash
-git clone https://github.com/Emolili999/emochord-v2.git
-cd emochord-v2
+git clone https://github.com/Emolili999/emo-chord.git
+cd emo-chord
 npm install
 ```
 
