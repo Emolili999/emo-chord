@@ -34,6 +34,9 @@
 ```bash
 cd emochord-v2
 
+# Bağımlılıkları yükleyin:
+npm install
+
 # Masaüstü uygulaması (Electron):
 npm start
 
