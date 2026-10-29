@@ -2,9 +2,23 @@
   "name": "emochord-v2",
   "version": "2.0.0",
   "desktopName": "emochord-v2.desktop",
-  "description": "Düşen nota akışıyla serbest piyano çalma, MIDI görselleştirme ve pratik uygulaması (v2)",
-  "author": "Emo",
+  "description": "Modern, 100% offline piano practice studio and falling-notes MIDI visualizer with real-time chord detection and interactive practice modes",
+  "author": "Emolili999",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Emolili999/emochord-v2.git"
+  },
+  "keywords": [
+    "piano",
+    "midi",
+    "midi-visualizer",
+    "music-practice",
+    "falling-notes",
+    "chord-detection",
+    "electron",
+    "offline"
+  ],
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -41,7 +55,7 @@
       ],
       "category": "AudioVideo",
       "icon": "assets/icon.png",
-      "synopsis": "Düşen nota akışlı piyano ve MIDI pratik uygulaması (v2)",
+      "synopsis": "Modern offline piano studio and falling-notes MIDI visualizer",
       "artifactName": "Emochord-v2-${version}-x86_64.${ext}",
       "mimeTypes": [
         "audio/midi",
