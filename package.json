@@ -1,0 +1,70 @@
+{
+  "name": "emochord-v2",
+  "version": "2.0.0",
+  "desktopName": "emochord-v2.desktop",
+  "description": "Düşen nota akışıyla serbest piyano çalma, MIDI görselleştirme ve pratik uygulaması (v2)",
+  "author": "Emo",
+  "license": "MIT",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "web": "node server.js",
+    "test": "node --test \"test/*.test.js\"",
+    "dist": "electron-builder --linux AppImage",
+    "dist:win": "LANG=C.UTF-8 LC_ALL=C.UTF-8 electron-builder --win portable --x64",
+    "dist:all": "npm run dist && npm run dist:win"
+  },
+  "devDependencies": {
+    "electron": "^44.9.1",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.emo.emochord.v2",
+    "productName": "Emochord v2",
+    "copyright": "Copyright © 2026 Emo (MIT)",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "lib/**/*",
+      "renderer/**/*",
+      "assets/**/*"
+    ],
+    "asar": true,
+    "compression": "normal",
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "category": "AudioVideo",
+      "icon": "assets/icon.png",
+      "synopsis": "Düşen nota akışlı piyano ve MIDI pratik uygulaması (v2)",
+      "artifactName": "Emochord-v2-${version}-x86_64.${ext}",
+      "mimeTypes": [
+        "audio/midi",
+        "audio/x-midi"
+      ]
+    },
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.png",
+      "signExecutable": false,
+      "legalTrademarks": "Emochord",
+      "requestedExecutionLevel": "asInvoker"
+    },
+    "portable": {
+      "artifactName": "Emochord-v2-${version}-Portable.exe",
+      "unicode": true
+    }
+  }
+}
