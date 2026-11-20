@@ -44,10 +44,19 @@ test('Piyano klavye yerleşimi ve otomatik boyut önerisi doğru çalışır', (
   assert.equal(layout61.whiteKeys.length, 36);
   assert.equal(layout61.blackKeys.length, 25);
 
+  const layout25 = buildKeybedLayout(48, 72, 1050);
+  assert.equal(layout25.keys.length, 25);
+  assert.equal(layout25.whiteKeys.length, 15);
+  assert.equal(layout25.blackKeys.length, 10);
+
   // 37 tuş (48..84) dışına taşan bas nota (30) varsa 88 tuş önermeli
   assert.equal(recommendRangeForNotes([{ midi: 30 }, { midi: 60 }], '37'), '88');
   // 37 tuş sınırları içindeyse mevcut seçimi korumalı
   assert.equal(recommendRangeForNotes([{ midi: 50 }, { midi: 72 }], '37'), '37');
+  // 25 tuş sınırları içindeyse mevcut 25 tuş seçimini korumalı
+  assert.equal(recommendRangeForNotes([{ midi: 50 }, { midi: 70 }], '25'), '25');
+  // 25 tuş dışına çıkan ama 37 tuşa sığan nota varsa 37 önermeli
+  assert.equal(recommendRangeForNotes([{ midi: 50 }, { midi: 75 }], '25'), '37');
 });
 
 test('Bilgisayar klavyesi eşlemesi ve akor algılama doğru çalışır', () => {

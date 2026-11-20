@@ -10,6 +10,7 @@
   } = window.EmochordMusic;
   const { DEMO_SONGS, NoteHighwayState } = window.EmochordHighway;
   const { parseMidiBuffer, writeMidiBuffer } = window.EmochordMidiParser;
+  const { parseVitalPreset } = window.EmochordVitalParser;
   const { PracticeEngine } = window.EmochordPractice;
   const { EmochordAudioEngine } = window.EmochordAudio;
   const { NoteFlowVisualizer } = window.EmochordVisualizer;
@@ -30,26 +31,27 @@
     metronomeEnabled: false,
     rangeId: '61',
     instrument: 'grand_piano',
-    themeId: 'classic',
+    themeId: 'zephyr',
     baseOctave: 3,
     transpose: 0,
     volume: 0.85,
     reverb: 0.28,
     sustainLocked: false,
     spaceHeld: false,
+    midiSustainHeld: false,
     flowSpeed: 220,
     labelMode: 'both',
     useTurkishNotes: false,
     showParticles: true,
     showGridLines: true,
-    customMidiSong: null
+    customMidiSong: null,
+    vitalPresets: []
   };
 
   // DOM Elemanları
   const canvas = document.getElementById('noteFlowCanvas');
   const stageContainer = document.getElementById('stageContainer');
   const dropOverlay = document.getElementById('dropOverlay');
-  const modeBadge = document.getElementById('modeBadge');
   const midiDot = document.getElementById('midiDot');
   const midiInputSelect = document.getElementById('midiInputSelect');
 
@@ -66,11 +68,6 @@
   const quickSongTitle = document.getElementById('quickSongTitle');
   const quickSongTime = document.getElementById('quickSongTime');
   const quickModeGroup = document.getElementById('quickModeGroup');
-  const hudLiveChord = document.getElementById('hudLiveChord');
-  const hudLiveNotes = document.getElementById('hudLiveNotes');
-  const hudLiveScore = document.getElementById('hudLiveScore');
-  const hudLiveStreak = document.getElementById('hudLiveStreak');
-  const hudVuFill = document.getElementById('hudVuFill');
   const quickSustainBtn = document.getElementById('quickSustainBtn');
   const quickMidiDot = document.getElementById('quickMidiDot');
   const quickMidiText = document.getElementById('quickMidiText');
@@ -84,13 +81,6 @@
   const timelineWrap = document.getElementById('timelineWrap');
   const timelineHoverLine = document.getElementById('timelineHoverLine');
   const timelineHoverTime = document.getElementById('timelineHoverTime');
-
-  const lcdChord = document.getElementById('lcdChord');
-  const lcdNotes = document.getElementById('lcdNotes');
-  const lcdScore = document.getElementById('lcdScore');
-  const lcdStreak = document.getElementById('lcdStreak');
-  const lcdAccuracy = document.getElementById('lcdAccuracy');
-  const vuFill = document.getElementById('vuFill');
 
   const demoSelect = document.getElementById('demoSelect');
   const btnOpenFile = document.getElementById('btnOpenFile');
@@ -127,6 +117,9 @@
 
   // Alt Ayar Şeridi
   const instrumentSelect = document.getElementById('instrumentSelect');
+  const btnAddVital = document.getElementById('btnAddVital');
+  const btnRemoveVital = document.getElementById('btnRemoveVital');
+  const vitalFileInput = document.getElementById('vitalFileInput');
   const rangeSelect = document.getElementById('rangeSelect');
   const btnOctaveDown = document.getElementById('btnOctaveDown');
   const btnOctaveUp = document.getElementById('btnOctaveUp');
@@ -180,32 +173,25 @@
 
   // Aktif Girdi Takibi (Kullanıcı ve Otomatik Oynatıcı çakışmasını önlemek için ayrı kümeler)
   const heldPcCodes = new Map();
-  const userHeldMidis = new Set();
+  const activePointers = new Map();
+  const heldMidiNotes = new Map();
+  const userHeldCounts = new Map();
   const playbackHeldMidis = new Set();
-  let mouseHeldMidi = null;
-  let isMouseDown = false;
   let isScrubbingTimeline = false;
+  let timelineScrubPointerId = null;
   let lastMetronomeBeat = -1;
+  let freeMetronomeBeatPhase = 0;
 
   // Gereksiz DOM yazmalarını engellemek için önbellek
   const domCache = {
-    chord: '',
-    notes: '',
-    score: '',
-    streak: '',
-    accuracy: '',
     timeCur: '',
-    vuPct: -1
+    timeTot: ''
   };
 
   function setTextCached(el, cacheKey, val) {
     if (domCache[cacheKey] !== val) {
       domCache[cacheKey] = val;
       if (el) el.textContent = val;
-      if (cacheKey === 'chord' && hudLiveChord) hudLiveChord.textContent = val;
-      else if (cacheKey === 'notes' && hudLiveNotes) hudLiveNotes.textContent = val;
-      else if (cacheKey === 'score' && hudLiveScore) hudLiveScore.textContent = val;
-      else if (cacheKey === 'streak' && hudLiveStreak) hudLiveStreak.textContent = val;
     }
   }
 
@@ -219,8 +205,15 @@
   function getDisplaySongTitle(song) {
     if (!song) return '';
     const id = song.id || (demoSelect ? demoSelect.value : '');
-    if (id && i18n.t(`songs.${id}`)) {
-      return i18n.t(`songs.${id}`).replace(/^[^\w\s]*\s*/, '').replace(/\s*\(.*?\)$/, '');
+    if (id === 'custom_midi' || id === 'custom') {
+      return song.title || i18n.t('songs.custom_midi', 'Custom MIDI');
+    }
+    if (id) {
+      const key = `songs.${id}`;
+      const translated = i18n.t(key, '');
+      if (translated && translated !== key) {
+        return translated.replace(/^[^\w\s]*\s*/, '').replace(/\s*\(.*?\)$/, '');
+      }
     }
     return song.title || '';
   }
@@ -241,21 +234,33 @@
 
     const instOpts = {
       grand_piano: i18n.t('keyboardControls.instruments.grand_piano'),
+      acoustic_piano: i18n.t('keyboardControls.instruments.acoustic_piano'),
       electric_piano: i18n.t('keyboardControls.instruments.electric_piano'),
-      neon_synth: i18n.t('keyboardControls.instruments.neon_synth'),
+      violin: i18n.t('keyboardControls.instruments.violin'),
+      string_ensemble: i18n.t('keyboardControls.instruments.string_ensemble'),
+      acoustic_guitar: i18n.t('keyboardControls.instruments.acoustic_guitar'),
+      flute: i18n.t('keyboardControls.instruments.flute'),
+      celesta: i18n.t('keyboardControls.instruments.celesta'),
       drawbar_organ: i18n.t('keyboardControls.instruments.drawbar_organ'),
-      music_box: i18n.t('keyboardControls.instruments.music_box')
+      music_box: i18n.t('keyboardControls.instruments.music_box'),
+      neon_synth: i18n.t('keyboardControls.instruments.neon_synth'),
+      synth_pad: i18n.t('keyboardControls.instruments.synth_pad')
     };
     for (const [val, text] of Object.entries(instOpts)) {
       const opt = instrumentSelect ? instrumentSelect.querySelector(`option[value="${val}"]`) : null;
       if (opt && text) opt.textContent = text;
+    }
+    const vitalGroup = instrumentSelect ? instrumentSelect.querySelector('optgroup[data-vital-group="true"]') : null;
+    if (vitalGroup) {
+      vitalGroup.label = i18n.t('keyboardControls.vitalGroup', 'Vital Presets');
     }
 
     const rangeOpts = {
       '88': i18n.t('keyboardControls.sizes.88'),
       '61': i18n.t('keyboardControls.sizes.61'),
       '49': i18n.t('keyboardControls.sizes.49'),
-      '37': i18n.t('keyboardControls.sizes.37')
+      '37': i18n.t('keyboardControls.sizes.37'),
+      '25': i18n.t('keyboardControls.sizes.25')
     };
     for (const [val, text] of Object.entries(rangeOpts)) {
       const opt = rangeSelect ? rangeSelect.querySelector(`option[value="${val}"]`) : null;
@@ -263,6 +268,7 @@
     }
 
     const themeOpts = {
+      zephyr: i18n.t('visualsControls.themes.zephyr'),
       classic: i18n.t('visualsControls.themes.classic'),
       aurora: i18n.t('visualsControls.themes.aurora'),
       luminary: i18n.t('visualsControls.themes.luminary'),
@@ -322,11 +328,46 @@
       if (saved && typeof saved === 'object') {
         Object.assign(state, saved);
         // Eski kayıtlardaki artık geçerli olmayan tema kimliği varsayılana düşer
-        if (!window.EmochordHighway.THEMES[state.themeId]) state.themeId = 'classic';
+        if (!window.EmochordHighway.THEMES[state.themeId]) state.themeId = 'zephyr';
+        if (Array.isArray(state.vitalPresets)) {
+          state.vitalPresets.forEach((p) => {
+            if (p && p.id) audio.addVitalPreset(p);
+          });
+        } else {
+          state.vitalPresets = [];
+        }
       }
     } catch {}
+    syncVitalPresetsUI();
+    if (!audio.setInstrument(state.instrument)) {
+      state.instrument = 'grand_piano';
+    }
     applyStateToUI();
     loadSelectedSongIntoPractice(false);
+  }
+
+  function syncVitalPresetsUI() {
+    if (!instrumentSelect) return;
+    const oldGroup = instrumentSelect.querySelector('optgroup[data-vital-group="true"]');
+    if (oldGroup) oldGroup.remove();
+
+    const presets = audio.getVitalPresets ? audio.getVitalPresets() : [];
+    if (presets.length > 0) {
+      const group = document.createElement('optgroup');
+      group.label = i18n.t('keyboardControls.vitalGroup', 'Vital Presets');
+      group.setAttribute('data-vital-group', 'true');
+      for (const p of presets) {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = `🎛️ ${p.name}`;
+        group.appendChild(opt);
+      }
+      instrumentSelect.appendChild(group);
+    }
+
+    if (btnRemoveVital) {
+      btnRemoveVital.hidden = !String(state.instrument || '').startsWith('vital:');
+    }
   }
 
   function persistSettings() {
@@ -340,7 +381,8 @@
       reverb: state.reverb,
       flowSpeed: state.flowSpeed,
       labelMode: state.labelMode,
-      showParticles: state.showParticles
+      showParticles: state.showParticles,
+      vitalPresets: Array.isArray(state.vitalPresets) ? state.vitalPresets : []
     };
     if (window.emochordAPI?.setSettings) {
       window.emochordAPI.setSettings(payload).catch(() => {});
@@ -393,13 +435,6 @@
         btn.classList.toggle('active', btn.dataset.mode === state.appMode);
       }
     }
-    const labels = {
-      free: i18n.t('drawerBadges.free', 'FREE PLAY'),
-      wait: i18n.t('drawerBadges.wait', 'WAIT PRACTICE'),
-      rhythm: i18n.t('drawerBadges.rhythm', 'RHYTHM PRACTICE'),
-      listen: i18n.t('drawerBadges.listen', 'LISTEN & WATCH')
-    };
-    modeBadge.textContent = labels[state.appMode] || i18n.t('drawerBadges.free', 'FREE PLAY');
 
     if (quickModeGroup) {
       for (const btn of quickModeGroup.querySelectorAll('.q-mode-btn')) {
@@ -428,7 +463,7 @@
   }
 
   function updateSustainUI() {
-    const active = state.sustainLocked || state.spaceHeld;
+    const active = state.sustainLocked || state.spaceHeld || state.midiSustainHeld;
     audio.setSustain(active);
     btnSustain.classList.toggle('active', active);
     if (quickSustainBtn) {
@@ -445,7 +480,7 @@
       if (!highway.recordedNotes.length) return null;
       return {
         id: 'recorded',
-        title: 'Serbest Çalma Kaydım',
+        title: i18n.t('songs.recordedTitle', 'My Recording'),
         bpm: 120,
         notes: highway.recordedNotes
       };
@@ -459,8 +494,6 @@
   function loadSelectedSongIntoPractice(autoStart = false) {
     const song = getSelectedSongObject();
     if (!song) {
-      setTextCached(lcdChord, 'chord', i18n.t('lcd.noRecording', 'No Recording Yet'));
-      setTextCached(lcdNotes, 'notes', i18n.t('lcd.noRecordingSub', 'Click "Record" and play some notes first, or choose a song'));
       return false;
     }
 
@@ -482,7 +515,7 @@
     timeTotal.textContent = formatTime(practice.durationMs);
     setTextCached(timeCurrent, 'timeCur', '00:00');
     if (quickSongTitle) {
-      quickSongTitle.textContent = getDisplaySongTitle(song) || song.title || 'Piece';
+      quickSongTitle.textContent = getDisplaySongTitle(song) || song.title || i18n.t('songs.defaultPiece', 'Piece');
     }
     if (quickSongTime) {
       quickSongTime.textContent = `00:00 / ${formatTime(practice.durationMs)}`;
@@ -512,8 +545,15 @@
     updateModeButtonsUI();
 
     if (nextMode === 'free') {
-      practice.pause();
+      if (typeof practice.stop === 'function') {
+        practice.stop();
+      } else {
+        practice.reset();
+      }
+      lastMetronomeBeat = -1;
+      freeMetronomeBeatPhase = 0;
       visualizer.setWaitingNotes([]);
+      updateTimelineUI(true);
       syncPlayPauseButton();
       updateLcdHud();
       return;
@@ -551,7 +591,7 @@
     if (source === 'playback') {
       playbackHeldMidis.add(midi);
     } else {
-      userHeldMidis.add(midi);
+      userHeldCounts.set(midi, (userHeldCounts.get(midi) || 0) + 1);
     }
 
     audio.noteOn(midi, vel);
@@ -567,9 +607,9 @@
       } else if (practice.isPlaying && !practice.isPaused && state.appMode !== 'listen') {
         const res = practice.handleUserNoteOn(midi);
         if (res.status === 'perfect') {
-          visualizer.spawnFeedbackText(midi, 'MÜKEMMEL!', '#65e827');
+          visualizer.spawnFeedbackText(midi, i18n.t('feedback.perfect', 'PERFECT!'), '#2ecc71');
         } else if (res.status === 'good') {
-          visualizer.spawnFeedbackText(midi, 'İYİ!', '#38bdf8');
+          visualizer.spawnFeedbackText(midi, i18n.t('feedback.good', 'GOOD!'), '#3daee9');
         } else if (res.status === 'wrong') {
           visualizer.flashWrongKey(midi);
         }
@@ -583,9 +623,14 @@
     if (source === 'playback') {
       playbackHeldMidis.delete(midi);
       // Kullanıcı aynı tuşu hala basılı tutuyorsa sesi ve görseli kesme
-      if (userHeldMidis.has(midi)) return;
+      if ((userHeldCounts.get(midi) || 0) > 0) return;
     } else {
-      userHeldMidis.delete(midi);
+      const heldCount = userHeldCounts.get(midi) || 0;
+      if (heldCount > 1) {
+        userHeldCounts.set(midi, heldCount - 1);
+        return;
+      }
+      userHeldCounts.delete(midi);
       if (state.appMode === 'free') {
         highway.noteOff(midi, performance.now());
       }
@@ -602,10 +647,10 @@
 
   function panicAllNotesOff() {
     heldPcCodes.clear();
-    userHeldMidis.clear();
+    activePointers.clear();
+    heldMidiNotes.clear();
+    userHeldCounts.clear();
     playbackHeldMidis.clear();
-    mouseHeldMidi = null;
-    isMouseDown = false;
     audio.releaseAll();
     highway.releaseAll(performance.now());
     visualizer.pressedKeys.clear();
@@ -615,78 +660,24 @@
   }
 
   function updateLcdHud() {
-    const useTr = state.labelMode === 'tr';
-
-    setTextCached(lcdScore, 'score', String(practice.stats.score));
-    setTextCached(lcdStreak, 'streak', `${practice.stats.streak}x`);
-    setTextCached(lcdAccuracy, 'accuracy', `%${practice.getAccuracyPercent()}`);
-
-    const waiting = practice.getWaitingNotes();
-    visualizer.setWaitingNotes(waiting);
-
-    if (state.appMode !== 'free' && practice.isPlaying && !practice.isPaused) {
-      if (waiting.length > 0) {
-        let octaveHint = '';
-        const lowPcMidi = (state.baseOctave + 1) * 12 + state.transpose;
-        const highPcMidi = lowPcMidi + 31;
-
-        const names = waiting.map((n) => {
-          const info = getNoteInfo(n.midi);
-          const pc = visualizer.pcLabels.get(n.midi);
-          const noteStr = useTr ? info.fullNameTr : info.fullName;
-          if (!pc && !octaveHint) {
-            octaveHint = n.midi < lowPcMidi ? i18n.t('lcd.octaveDown', ' (Octave Down: ←)') : i18n.t('lcd.octaveUp', ' (Octave Up: →)');
-          }
-          return pc ? `${noteStr} [${pc}]` : noteStr;
-        });
-        setTextCached(lcdChord, 'chord', `${i18n.t('lcd.expectedKey', '🎯 Expected Key')}: ${names.join(' + ')}`);
-        setTextCached(
-          lcdNotes,
-          'notes',
-          `${i18n.t('lcd.progress', 'Progress')}: ${practice.stats.completedTargets} / ${practice.stats.totalTargets} ${i18n.t('lcd.notesCount', 'Notes')}${octaveHint}`
-        );
-        return;
-      }
-    }
-
-    const activeMidis = Array.from(visualizer.pressedKeys.keys()).sort((a, b) => a - b);
-    if (activeMidis.length === 0) {
-      if (highway.isRecording) {
-        setTextCached(lcdChord, 'chord', i18n.t('lcd.recording', '● Recording in Progress...'));
-        setTextCached(lcdNotes, 'notes', i18n.t('lcd.recordingDesc', 'All played notes are being recorded'));
-      } else if (state.appMode !== 'free' && practice.song) {
-        const handLabels = {
-          both: i18n.t('hands.labelsMap.both', 'Both Hands'),
-          right: i18n.t('hands.labelsMap.right', 'Right Hand'),
-          left: i18n.t('hands.labelsMap.left', 'Left Hand')
-        };
-        const songTitle = getDisplaySongTitle(practice.song) || practice.song.title;
-        setTextCached(lcdChord, 'chord', `🎼 ${songTitle}`);
-        setTextCached(
-          lcdNotes,
-          'notes',
-          `${handLabels[state.handMode] || ''} • ${practice.stats.completedTargets}/${practice.stats.totalTargets} ${i18n.t('lcd.notesCount', 'Notes')}`
-        );
-      } else {
-        setTextCached(lcdChord, 'chord', i18n.t('liveHud.chordReady', 'Free Piano Ready'));
-        setTextCached(lcdNotes, 'notes', i18n.t('liveHud.notesHint', 'Play with Keyboard, Mouse or MIDI'));
-      }
+    if (state.appMode === 'free') {
+      visualizer.setWaitingNotes([]);
       return;
     }
-
-    const chord = detectChord(activeMidis, useTr);
-    setTextCached(lcdChord, 'chord', chord ? chord.label : '');
-    const noteNames = activeMidis.map((m) => {
-      const info = getNoteInfo(m);
-      return useTr ? info.fullNameTr : info.fullName;
-    });
-    setTextCached(lcdNotes, 'notes', noteNames.join('  •  '));
+    const waiting = practice.getWaitingNotes();
+    visualizer.setWaitingNotes(waiting);
   }
 
   // 1. BİLGİSAYAR KLAVYESİ GİRİŞİ
   window.addEventListener('keydown', (e) => {
     if (e.target && ['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)) {
       if (e.code !== 'Escape') return;
+    }
+
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.repeat) {
+      if (e.code === 'Space') e.preventDefault();
+      return;
     }
 
     if (e.code === 'Space') {
@@ -698,7 +689,7 @@
       return;
     }
 
-    if (e.code === 'KeyM') {
+    if (e.code === 'Tab') {
       e.preventDefault();
       toggleSettingsMenu();
       return;
@@ -749,11 +740,10 @@
       return;
     }
 
-    if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
-
     const midi = pcCodeToMidi(e.code, state.baseOctave, state.transpose);
     if (midi !== null) {
       e.preventDefault();
+      if (heldPcCodes.has(e.code)) return;
       heldPcCodes.set(e.code, midi);
       triggerNoteOn(midi, 102, 'pc');
     }
@@ -780,7 +770,7 @@
     panicAllNotesOff();
   });
 
-  // 2. FARE & DOKUNMATİK PİYANO GİRİŞİ
+  // 2. FARE & DOKUNMATİK PİYANO GİRİŞİ (Multi-touch destekli pointerId takibi)
   function computeMouseVelocity(clientY) {
     const rect = canvas.getBoundingClientRect();
     const y = clientY - rect.top;
@@ -790,35 +780,37 @@
   }
 
   canvas.addEventListener('pointerdown', (e) => {
-    canvas.setPointerCapture(e.pointerId);
-    isMouseDown = true;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
     const midi = visualizer.hitTestKey(e.clientX, e.clientY);
+    activePointers.set(e.pointerId, { midi });
     if (midi !== null) {
-      mouseHeldMidi = midi;
       triggerNoteOn(midi, computeMouseVelocity(e.clientY), 'mouse');
     }
   });
 
   canvas.addEventListener('pointermove', (e) => {
-    if (!isMouseDown) return;
+    const entry = activePointers.get(e.pointerId);
+    if (!entry) return;
     const midi = visualizer.hitTestKey(e.clientX, e.clientY);
-    if (midi !== mouseHeldMidi) {
-      if (mouseHeldMidi !== null) {
-        triggerNoteOff(mouseHeldMidi, 'mouse');
+    if (midi !== entry.midi) {
+      if (entry.midi !== null) {
+        triggerNoteOff(entry.midi, 'mouse');
       }
-      mouseHeldMidi = midi;
+      entry.midi = midi;
       if (midi !== null) {
         triggerNoteOn(midi, computeMouseVelocity(e.clientY), 'mouse');
       }
     }
   });
 
-  const endPointer = () => {
-    if (!isMouseDown) return;
-    isMouseDown = false;
-    if (mouseHeldMidi !== null) {
-      triggerNoteOff(mouseHeldMidi, 'mouse');
-      mouseHeldMidi = null;
+  const endPointer = (e) => {
+    const entry = activePointers.get(e.pointerId);
+    if (!entry) return;
+    activePointers.delete(e.pointerId);
+    try { canvas.releasePointerCapture(e.pointerId); } catch (_) {}
+    if (entry.midi !== null) {
+      triggerNoteOff(entry.midi, 'mouse');
     }
   };
   canvas.addEventListener('pointerup', endPointer);
@@ -827,10 +819,15 @@
   // 3. GERÇEK MIDI KLAVYE / ORG (Web MIDI API)
   let midiAccess = null;
   let selectedMidiInputId = '';
+  const boundMidiInputs = new Set();
 
   async function setupWebMidi() {
     if (!navigator.requestMIDIAccess) {
-      midiInputSelect.innerHTML = '<option value="">Web MIDI Desteklenmiyor</option>';
+      midiInputSelect.innerHTML = '';
+      const opt = document.createElement('option');
+      opt.value = '';
+      opt.textContent = i18n.t('midi.unsupported', 'Web MIDI Not Supported');
+      midiInputSelect.appendChild(opt);
       return;
     }
     try {
@@ -838,16 +835,50 @@
       midiAccess.onstatechange = () => refreshMidiInputs();
       refreshMidiInputs();
     } catch {
-      midiInputSelect.innerHTML = '<option value="">MIDI Erişimi Reddedildi</option>';
+      midiInputSelect.innerHTML = '';
+      const opt = document.createElement('option');
+      opt.value = '';
+      opt.textContent = i18n.t('midi.denied', 'MIDI Access Denied');
+      midiInputSelect.appendChild(opt);
     }
   }
 
   function refreshMidiInputs() {
     if (!midiAccess) return;
-    const inputs = Array.from(midiAccess.inputs.values());
+    const allInputs = Array.from(midiAccess.inputs.values());
+    const inputs = [];
+    for (const input of allInputs) {
+      if (input.state === 'disconnected') {
+        input.onmidimessage = null;
+      } else {
+        inputs.push(input);
+      }
+    }
+    const activeSet = new Set(inputs);
+    const activeIds = new Set(inputs.map((inp) => inp.id));
+
+    for (const prevInput of boundMidiInputs) {
+      if (!activeSet.has(prevInput)) {
+        prevInput.onmidimessage = null;
+        boundMidiInputs.delete(prevInput);
+      }
+    }
+
+    for (const [key, entry] of heldMidiNotes.entries()) {
+      if (!activeIds.has(entry.inputId)) {
+        heldMidiNotes.delete(key);
+        triggerNoteOff(entry.playedMidi, 'midi');
+      }
+    }
+
     midiInputSelect.innerHTML = '';
 
     if (inputs.length === 0) {
+      selectedMidiInputId = '';
+      if (state.midiSustainHeld) {
+        state.midiSustainHeld = false;
+        updateSustainUI();
+      }
       const opt = document.createElement('option');
       opt.value = '';
       opt.textContent = i18n.t('midi.inputStandby', 'MIDI: Standby / Plug & Play');
@@ -860,18 +891,21 @@
 
     const allOpt = document.createElement('option');
     allOpt.value = '__all__';
-    allOpt.textContent = `🎹 All MIDI Devices (${inputs.length})`;
+    allOpt.textContent = `🎹 ${i18n.t('midi.allDevices', 'All MIDI Devices')} (${inputs.length})`;
     midiInputSelect.appendChild(allOpt);
 
     for (const input of inputs) {
       const opt = document.createElement('option');
       opt.value = input.id;
-      opt.textContent = input.name || `MIDI Klavye (${input.id})`;
+      opt.textContent = input.name || `${i18n.t('midi.defaultDevice', 'MIDI Keyboard')} (${input.id})`;
       midiInputSelect.appendChild(opt);
       input.onmidimessage = (msg) => handleMidiMessage(input.id, msg);
+      boundMidiInputs.add(input);
     }
 
-    if (!selectedMidiInputId) selectedMidiInputId = '__all__';
+    if (!selectedMidiInputId || (selectedMidiInputId !== '__all__' && !activeIds.has(selectedMidiInputId))) {
+      selectedMidiInputId = '__all__';
+    }
     midiInputSelect.value = selectedMidiInputId;
     midiDot.classList.add('connected');
     if (quickMidiDot) quickMidiDot.classList.add('connected');
@@ -887,20 +921,37 @@
     const status = data[0] & 0xf0;
     const note = data[1];
     const velocity = data.length > 2 ? data[2] : 0;
+    const key = `${inputId}:${note}`;
 
-    if (status === 0x90) {
-      if (velocity > 0) {
-        triggerNoteOn(note + state.transpose, velocity, 'midi');
+    if (status === 0x90 && velocity > 0) {
+      if (heldMidiNotes.has(key)) {
+        const prev = heldMidiNotes.get(key);
+        heldMidiNotes.delete(key);
+        triggerNoteOff(prev.playedMidi, 'midi');
+      }
+      const playedMidi = note + state.transpose;
+      if (playedMidi >= 21 && playedMidi <= 108) {
+        heldMidiNotes.set(key, { inputId, playedMidi });
+        triggerNoteOn(playedMidi, velocity, 'midi');
+      }
+    } else if (status === 0x80 || (status === 0x90 && velocity === 0)) {
+      if (heldMidiNotes.has(key)) {
+        const prev = heldMidiNotes.get(key);
+        heldMidiNotes.delete(key);
+        triggerNoteOff(prev.playedMidi, 'midi');
       } else {
         triggerNoteOff(note + state.transpose, 'midi');
       }
-    } else if (status === 0x80) {
-      triggerNoteOff(note + state.transpose, 'midi');
     } else if (status === 0xb0) {
       if (note === 64) {
-        state.spaceHeld = velocity >= 64;
+        state.midiSustainHeld = velocity >= 64;
         updateSustainUI();
       } else if (note === 123) {
+        for (const [k, entry] of heldMidiNotes.entries()) {
+          if (entry.inputId === inputId) {
+            heldMidiNotes.delete(k);
+          }
+        }
         panicAllNotesOff();
       }
     }
@@ -921,28 +972,46 @@
         demoSelect.value = 'recorded';
         btnSaveRec.disabled = false;
         loadSelectedSongIntoPractice(false);
-        setTextCached(lcdChord, 'chord', i18n.t('lcd.recordDone', 'Recording Complete ({count} Notes)').replace('{count}', notes.length));
-        setTextCached(
-          lcdNotes,
-          'notes',
-          i18n.t('lcd.recordDoneSub', 'Press Play to practice with your recording or download as MIDI')
-        );
-      } else {
-        setTextCached(lcdChord, 'chord', i18n.t('lcd.recordEmpty', 'Recording Stopped (No Notes)'));
       }
     } else {
       setAppMode('free', false);
       highway.startRecording(performance.now());
       btnRecord.classList.add('recording');
       recordLabel.textContent = i18n.t('buttons.recordStop', 'Stop');
-      modeBadge.textContent = i18n.t('lcd.recording', '● RECORDING IN PROGRESS');
       updateLcdHud();
     }
+  }
+
+  function loadVitalPresetBytes(name, uint8) {
+    const preset = parseVitalPreset(uint8, name);
+    audio.addVitalPreset(preset);
+    if (!Array.isArray(state.vitalPresets)) state.vitalPresets = [];
+    const existingIdx = state.vitalPresets.findIndex((p) => p && p.id === preset.id);
+    if (existingIdx >= 0) {
+      state.vitalPresets[existingIdx] = preset;
+    } else {
+      state.vitalPresets.push(preset);
+      if (state.vitalPresets.length > 20) {
+        const dropped = state.vitalPresets.shift();
+        if (dropped && dropped.id && dropped.id !== preset.id) {
+          audio.removeVitalPreset(dropped.id);
+        }
+      }
+    }
+    state.instrument = preset.id;
+    audio.setInstrument(preset.id);
+    syncVitalPresetsUI();
+    instrumentSelect.value = preset.id;
+    persistSettings();
   }
 
   function loadFileBytes(name, uint8) {
     try {
       const lower = name.toLowerCase();
+      if (lower.endsWith('.vital')) {
+        loadVitalPresetBytes(name, uint8);
+        return;
+      }
       if (lower.endsWith('.json')) {
         const text = new TextDecoder('utf-8').decode(uint8);
         const parsed = JSON.parse(text);
@@ -969,6 +1038,14 @@
         };
       }
 
+      if (highway.isRecording) {
+        highway.stopRecording(performance.now());
+        btnRecord.classList.remove('recording');
+        recordLabel.textContent = i18n.t('buttons.record', 'Record');
+      }
+      panicAllNotesOff();
+      highway.clear();
+
       let customOpt = demoSelect.querySelector('option[value="custom_midi"]');
       if (!customOpt) {
         customOpt = document.createElement('option');
@@ -984,8 +1061,7 @@
       }
       loadSelectedSongIntoPractice(true);
     } catch (err) {
-      setTextCached(lcdChord, 'chord', 'Dosya Okunamadı');
-      setTextCached(lcdNotes, 'notes', err.message || 'Geçersiz dosya formatı');
+      console.error('Dosya okunamadı:', err);
     }
   }
 
@@ -1084,6 +1160,10 @@
     if (practice.isPlaying && !practice.isPaused) {
       practice.pause();
       panicAllNotesOff();
+    } else if (practice.isFinished) {
+      panicAllNotesOff();
+      practice.start();
+      lastMetronomeBeat = -1;
     } else {
       practice.resume();
     }
@@ -1125,15 +1205,20 @@
     }
     const dur = Math.max(1, practice.durationMs || 1000);
     const targetMs = ratio * dur;
-    panicAllNotesOff();
-    practice.seek(targetMs);
+    if (Math.abs(targetMs - practice.songTimeMs) >= 1) {
+      panicAllNotesOff();
+      practice.seek(targetMs);
+      lastMetronomeBeat = -1;
+    }
     updateTimelineUI(true);
     updateLcdHud();
   };
 
   if (timelineWrap) {
     timelineWrap.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
       isScrubbingTimeline = true;
+      timelineScrubPointerId = e.pointerId;
       try { timelineWrap.setPointerCapture(e.pointerId); } catch (_) {}
       handleTimelineScrub(e.clientX);
     });
@@ -1146,18 +1231,20 @@
       const hoverMs = ratio * dur;
       if (timelineHoverLine) timelineHoverLine.style.left = `${(ratio * 100).toFixed(2)}%`;
       if (timelineHoverTime) {
-        timelineHoverTime.style.left = `${(ratio * 100).toFixed(2)}%`;
+        const clampedX = Math.max(28, Math.min(rect.width - 28, ratio * rect.width));
+        timelineHoverTime.style.left = `${clampedX.toFixed(1)}px`;
         timelineHoverTime.textContent = formatTime(hoverMs);
       }
 
-      if (isScrubbingTimeline) {
+      if (isScrubbingTimeline && (timelineScrubPointerId === null || e.pointerId === timelineScrubPointerId)) {
         handleTimelineScrub(e.clientX);
       }
     });
 
     const stopScrubbing = (e) => {
-      if (isScrubbingTimeline) {
+      if (isScrubbingTimeline && (timelineScrubPointerId === null || e.pointerId === timelineScrubPointerId)) {
         isScrubbingTimeline = false;
+        timelineScrubPointerId = null;
         try { timelineWrap.releasePointerCapture(e.pointerId); } catch (_) {}
       }
     };
@@ -1167,11 +1254,16 @@
   }
 
   timelineSlider.addEventListener('input', () => {
+    if (isScrubbingTimeline) return;
+    if (!practice.song) {
+      loadSelectedSongIntoPractice(false);
+    }
     if (!practice.durationMs) return;
     const ratio = Number(timelineSlider.value) / 1000;
     const targetMs = ratio * practice.durationMs;
     panicAllNotesOff();
     practice.seek(targetMs);
+    lastMetronomeBeat = -1;
     updateTimelineUI(true);
     updateLcdHud();
   });
@@ -1221,6 +1313,8 @@
   btnMetronome.addEventListener('click', () => {
     state.metronomeEnabled = !state.metronomeEnabled;
     btnMetronome.classList.toggle('active', state.metronomeEnabled);
+    lastMetronomeBeat = -1;
+    freeMetronomeBeatPhase = 0;
   });
 
   function updateTimelineUI(forceSlider = false) {
@@ -1254,7 +1348,7 @@
       right: i18n.t('hands.labelsMap.right', 'Right Hand'),
       left: i18n.t('hands.labelsMap.left', 'Left Hand')
     };
-    sumSub.textContent = `${modeNames[rep.mode] || 'Practice'} • ${handNames[rep.handMode] || ''}`;
+    sumSub.textContent = `${modeNames[rep.mode] || i18n.t('modes.wait', 'Practice')} • ${handNames[rep.handMode] || ''}`;
     sumScore.textContent = String(rep.score);
     sumAccuracy.textContent = `%${rep.accuracy}`;
     sumStreak.textContent = `${rep.maxStreak}x`;
@@ -1267,8 +1361,13 @@
   btnCloseSummary.addEventListener('click', () => {
     summaryModal.hidden = true;
   });
+  summaryModal.addEventListener('click', (e) => {
+    if (e.target === summaryModal) summaryModal.hidden = true;
+  });
   btnRetryPractice.addEventListener('click', () => {
     summaryModal.hidden = true;
+    panicAllNotesOff();
+    lastMetronomeBeat = -1;
     practice.reset();
     practice.start();
     syncPlayPauseButton();
@@ -1308,8 +1407,61 @@
   instrumentSelect.addEventListener('change', () => {
     state.instrument = instrumentSelect.value;
     audio.setInstrument(state.instrument);
+    if (btnRemoveVital) {
+      btnRemoveVital.hidden = !String(state.instrument || '').startsWith('vital:');
+    }
     persistSettings();
   });
+
+  if (btnAddVital) {
+    btnAddVital.addEventListener('click', async () => {
+      if (window.emochordAPI?.openVitalPresetFile) {
+        const files = await window.emochordAPI.openVitalPresetFile();
+        if (!Array.isArray(files) || files.length === 0) return;
+        for (const res of files) {
+          try {
+            const bin = atob(res.base64);
+            const bytes = new Uint8Array(bin.length);
+            for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+            loadVitalPresetBytes(res.name, bytes);
+          } catch (err) {
+            console.error('Geçersiz .vital dosyası:', err);
+          }
+        }
+      } else if (vitalFileInput) {
+        vitalFileInput.click();
+      }
+    });
+  }
+
+  if (vitalFileInput) {
+    vitalFileInput.addEventListener('change', async () => {
+      const files = Array.from(vitalFileInput.files || []);
+      for (const file of files) {
+        try {
+          const buf = await file.arrayBuffer();
+          loadVitalPresetBytes(file.name, new Uint8Array(buf));
+        } catch (err) {
+          console.error('Geçersiz .vital dosyası:', err);
+        }
+      }
+      vitalFileInput.value = '';
+    });
+  }
+
+  if (btnRemoveVital) {
+    btnRemoveVital.addEventListener('click', () => {
+      const current = state.instrument;
+      if (!String(current || '').startsWith('vital:')) return;
+      audio.removeVitalPreset(current);
+      state.vitalPresets = (state.vitalPresets || []).filter((p) => p && p.id !== current);
+      state.instrument = 'grand_piano';
+      audio.setInstrument(state.instrument);
+      syncVitalPresetsUI();
+      instrumentSelect.value = state.instrument;
+      persistSettings();
+    });
+  }
 
   rangeSelect.addEventListener('change', () => {
     state.rangeId = rangeSelect.value;
@@ -1472,12 +1624,16 @@
         const n = ev.noteOff[i];
         triggerNoteOff(n.midi, 'playback');
       }
+      if (ev.looped) {
+        panicAllNotesOff();
+        lastMetronomeBeat = -1;
+      }
       for (let i = 0; i < ev.noteOn.length; i++) {
         const n = ev.noteOn[i];
         triggerNoteOn(n.midi, n.velocity, 'playback', n.hand);
       }
 
-      if (state.metronomeEnabled && !practice.isWaitingForInput && practice.songTimeMs >= 0) {
+      if (state.metronomeEnabled && !practice.isWaitingForInput && !ev.finished && practice.songTimeMs >= 0) {
         const beatMs = 60000 / (practice.song?.bpm || 120);
         const curBeat = Math.floor(practice.songTimeMs / beatMs);
         if (curBeat !== lastMetronomeBeat) {
@@ -1496,6 +1652,13 @@
           showSummaryModal();
         }
       }
+    } else if (state.appMode === 'free' && state.metronomeEnabled) {
+      const curBeat = Math.floor(freeMetronomeBeatPhase);
+      if (curBeat !== lastMetronomeBeat) {
+        lastMetronomeBeat = curBeat;
+        audio.playMetronomeTick(curBeat % 4 === 0);
+      }
+      freeMetronomeBeatPhase += (dtMs * state.tempoScale) / (60000 / 120);
     }
 
     const risingRects = highway.computeRisingRects(nowMs, visualizer.highwayHeight);
@@ -1523,13 +1686,6 @@
     }
 
     visualizer.render(dtSec, risingRects, fallingRects, songMeta);
-
-    const levelPct = Math.round(audio.getOutputLevel() * 100);
-    if (domCache.vuPct !== levelPct) {
-      domCache.vuPct = levelPct;
-      vuFill.style.width = `${levelPct}%`;
-      if (hudVuFill) hudVuFill.style.width = `${levelPct}%`;
-    }
 
     requestAnimationFrame(animate);
   }

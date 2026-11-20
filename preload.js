@@ -7,10 +7,15 @@ contextBridge.exposeInMainWorld('emochordAPI', {
   setSettings: (patch) => ipcRenderer.invoke('settings:set', patch),
   toggleFullscreen: () => ipcRenderer.invoke('window:toggleFullscreen'),
   openMidiOrRecordingFile: () => ipcRenderer.invoke('midi:openFile'),
+  openVitalPresetFile: () => ipcRenderer.invoke('vital:openFile'),
   getStartupFile: () => ipcRenderer.invoke('midi:getStartupFile'),
   onExternalMidiOpen: (cb) => {
-    if (typeof cb !== 'function') return;
-    ipcRenderer.on('midi:externalOpen', (_e, payload) => cb(payload));
+    if (typeof cb !== 'function') return () => {};
+    const listener = (_e, payload) => cb(payload);
+    ipcRenderer.on('midi:externalOpen', listener);
+    return () => {
+      ipcRenderer.removeListener('midi:externalOpen', listener);
+    };
   },
   saveRecording: (payload) => ipcRenderer.invoke('recording:save', payload)
 });

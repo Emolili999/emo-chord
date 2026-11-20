@@ -24,7 +24,7 @@
     <div class="top-overlay-bar">
       <!-- Sol Küme: Menü + Oynatma + Hızlı Mod Seçimi -->
       <div class="top-overlay-left">
-        <button id="btnMenuToggle" class="btn-menu-toggle" title="Studio Settings &amp; Menu (M)" data-i18n-title="menuToggle" aria-label="Settings Menu" data-i18n-aria="menuToggleAria">
+        <button id="btnMenuToggle" class="btn-menu-toggle" title="Studio Settings &amp; Menu (Tab)" data-i18n-title="menuToggle" aria-label="Settings Menu" data-i18n-aria="menuToggleAria">
           <span class="hamburger-bar"></span>
           <span class="hamburger-bar"></span>
           <span class="hamburger-bar"></span>
@@ -50,30 +50,6 @@
           <button class="q-mode-btn" data-mode="wait" title="Wait Practice Mode" data-i18n="modes.wait">Practice</button>
           <button class="q-mode-btn" data-mode="rhythm" title="Rhythm Practice Mode" data-i18n="modes.rhythm">Rhythm</button>
           <button class="q-mode-btn" data-mode="listen" title="Watch &amp; Listen Mode" data-i18n="modes.listen">Listen</button>
-        </div>
-      </div>
-
-      <!-- Orta Küme: Canlı Akor, Nota & Performans HUD Kapsülü -->
-      <div class="top-overlay-center">
-        <div class="live-hud-pill" id="liveHudPill">
-          <div class="live-hud-status">
-            <span class="live-hud-chord" id="hudLiveChord" data-i18n="liveHud.chordReady">Free Piano Ready</span>
-            <span class="live-hud-notes" id="hudLiveNotes" data-i18n="liveHud.notesHint">Play with Keyboard, Mouse or MIDI</span>
-          </div>
-          <div class="live-hud-divider"></div>
-          <div class="live-hud-metrics">
-            <div class="hud-metric" title="Total Score">
-              <span class="hud-metric-label" data-i18n="liveHud.scoreLabel">SCORE</span>
-              <span class="hud-metric-val accent-sky" id="hudLiveScore">0</span>
-            </div>
-            <div class="hud-metric" title="Streak Combo">
-              <span class="hud-metric-label" data-i18n="liveHud.streakLabel">STREAK</span>
-              <span class="hud-metric-val accent-amber" id="hudLiveStreak">0x</span>
-            </div>
-            <div class="hud-vu-wrap" title="Audio Level">
-              <div class="hud-vu-bar"><div class="hud-vu-fill" id="hudVuFill"></div></div>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -115,22 +91,6 @@
     <div class="drawer-backdrop" id="drawerBackdrop"></div>
     <aside class="settings-drawer" id="settingsDrawer" aria-hidden="true">
       <div class="drawer-header">
-        <div class="drawer-title-group">
-          <div class="drawer-logo-badge">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="2" y="4" width="20" height="16" rx="3"/>
-              <line x1="6" y1="4" x2="6" y2="14"/>
-              <line x1="10" y1="4" x2="10" y2="14"/>
-              <line x1="14" y1="4" x2="14" y2="14"/>
-              <line x1="18" y1="4" x2="18" y2="14"/>
-              <line x1="2" y1="14" x2="22" y2="14"/>
-            </svg>
-          </div>
-          <div>
-            <h2 class="drawer-title">EMOCHORD STUDIO</h2>
-            <span class="drawer-sub" id="modeBadge" data-i18n="drawerBadges.free">FREE PLAY</span>
-          </div>
-        </div>
         <button id="btnCloseMenu" class="drawer-close-btn" title="Close (Esc)" data-i18n-title="buttons.close">✕</button>
       </div>
 
@@ -157,7 +117,7 @@
             <button id="btnOpenFile" class="btn btn-primary-outline flex-1" title="Open .mid / .midi file from computer" data-i18n-title="buttons.openFile">
               <span data-i18n="buttons.openFile">📂 Open MIDI File</span>
             </button>
-            <input type="file" id="hiddenFileInput" accept=".mid,.midi,.json" hidden />
+            <input type="file" id="hiddenFileInput" accept=".mid,.midi,.json,.vital" hidden />
 
             <button id="btnRecord" class="btn btn-record" title="Record your free play performance">
               <span class="rec-dot"></span>
@@ -251,11 +211,23 @@
               <label for="instrumentSelect" data-i18n="keyboardControls.instrumentLabel">Instrument Sound</label>
               <select id="instrumentSelect" class="studio-select">
                 <option value="grand_piano" data-i18n="keyboardControls.instruments.grand_piano">🎹 Concert Grand Piano</option>
+                <option value="acoustic_piano" data-i18n="keyboardControls.instruments.acoustic_piano">🎙️ Acoustic Upright Piano</option>
                 <option value="electric_piano" data-i18n="keyboardControls.instruments.electric_piano">✨ Electric Piano (Rhodes)</option>
-                <option value="neon_synth" data-i18n="keyboardControls.instruments.neon_synth">🎛️ Neon Synth</option>
+                <option value="violin" data-i18n="keyboardControls.instruments.violin">🎻 Solo Violin</option>
+                <option value="string_ensemble" data-i18n="keyboardControls.instruments.string_ensemble">🎻 String Ensemble</option>
+                <option value="acoustic_guitar" data-i18n="keyboardControls.instruments.acoustic_guitar">🎸 Acoustic Guitar</option>
+                <option value="flute" data-i18n="keyboardControls.instruments.flute">🪈 Concert Flute</option>
+                <option value="celesta" data-i18n="keyboardControls.instruments.celesta">🔔 Celesta &amp; Chimes</option>
                 <option value="drawbar_organ" data-i18n="keyboardControls.instruments.drawbar_organ">⛪ Church / Organ</option>
                 <option value="music_box" data-i18n="keyboardControls.instruments.music_box">💎 Crystal Music Box</option>
+                <option value="neon_synth" data-i18n="keyboardControls.instruments.neon_synth">🎛️ Neon Synth</option>
+                <option value="synth_pad" data-i18n="keyboardControls.instruments.synth_pad">🌌 Warm Ambient Pad</option>
               </select>
+              <div class="vital-preset-actions" style="display:flex; gap:6px; margin-top:6px;">
+                <button type="button" id="btnAddVital" class="btn-secondary" style="flex:1; font-size:12px; padding:6px 10px;" data-i18n="keyboardControls.addVital">+ Import .vital</button>
+                <button type="button" id="btnRemoveVital" class="btn-secondary" style="font-size:12px; padding:6px 10px;" hidden data-i18n="keyboardControls.removeVital">Remove</button>
+                <input type="file" id="vitalFileInput" accept=".vital" multiple hidden />
+              </div>
             </div>
 
             <div class="ctrl-item">
@@ -265,6 +237,7 @@
                 <option value="61" selected data-i18n="keyboardControls.sizes.61">61 Keys (Standard C2–C7)</option>
                 <option value="49" data-i18n="keyboardControls.sizes.49">49 Keys (Studio C2–C6)</option>
                 <option value="37" data-i18n="keyboardControls.sizes.37">37 Keys (Compact C3–C6)</option>
+                <option value="25" data-i18n="keyboardControls.sizes.25">25 Keys (Mini C3–C5)</option>
               </select>
             </div>
           </div>
@@ -309,6 +282,7 @@
             <div class="ctrl-item">
               <label for="themeSelect" data-i18n="visualsControls.themeLabel">Color Theme</label>
               <select id="themeSelect" class="studio-select">
+                <option value="zephyr" selected data-i18n="visualsControls.themes.zephyr">🌊 Zephyr Slate (Ocean Blue &amp; Teal)</option>
                 <option value="classic" data-i18n="visualsControls.themes.classic">Classic (Green &amp; Blue)</option>
                 <option value="aurora" data-i18n="visualsControls.themes.aurora">✨ Aurora Fresh (Teal &amp; Sky)</option>
                 <option value="luminary" data-i18n="visualsControls.themes.luminary">🔮 Luminary Studio (Purple &amp; Coral)</option>
@@ -383,39 +357,6 @@
             <select id="midiInputSelect" class="midi-select" aria-label="MIDI Input Device">
               <option value="" data-i18n="midi.inputStandby">MIDI: Standby / Plug &amp; Play</option>
             </select>
-          </div>
-        </section>
-
-        <!-- 6. KART: LCD MONİTÖR & CANLI BİLGİ -->
-        <section class="settings-section-card">
-          <div class="section-card-title">
-            <span class="card-icon-badge">📊</span>
-            <span data-i18n="sections.monitor">Live Chord, Note &amp; Performance Monitor</span>
-          </div>
-
-          <div class="lcd-monitor">
-            <div class="lcd-main">
-              <div class="lcd-chord" id="lcdChord" data-i18n="lcd.chordReady">Ready — Start Playing</div>
-              <div class="lcd-notes" id="lcdNotes" data-i18n="lcd.notesReady">Play with computer keyboard, mouse or MIDI keyboard</div>
-            </div>
-            <div class="lcd-meters">
-              <div class="lcd-stat">
-                <span class="stat-label" data-i18n="lcd.score">SCORE</span>
-                <span class="stat-val score-val" id="lcdScore">0</span>
-              </div>
-              <div class="lcd-stat">
-                <span class="stat-label" data-i18n="lcd.streak">STREAK</span>
-                <span class="stat-val streak-val" id="lcdStreak">0x</span>
-              </div>
-              <div class="lcd-stat">
-                <span class="stat-label" data-i18n="lcd.accuracy">ACCURACY</span>
-                <span class="stat-val" id="lcdAccuracy">%100</span>
-              </div>
-              <div class="lcd-stat">
-                <span class="stat-label" data-i18n="lcd.audio">AUDIO</span>
-                <div class="vu-track"><div class="vu-fill" id="vuFill"></div></div>
-              </div>
-            </div>
           </div>
         </section>
       </div>
@@ -504,10 +445,10 @@
             <div class="help-section">
               <h3 data-i18n="help.section2">2. Computer Keyboard Controls (2 Octaves)</h3>
               <ul>
-                <li data-i18n-html="help.whiteUpper"><strong>Upper Row White Keys (C4–G5):</strong> <code>Q W E R T Y U I O P Ğ Ü</code></li>
+                <li data-i18n-html="help.whiteUpper"><strong>Upper Row White Keys (C4–G5):</strong> <code>Q W E R T Y U I O P [ ]</code></li>
                 <li data-i18n-html="help.blackUpper"><strong>Upper Row Black Keys:</strong> <code>2 3</code> &nbsp; <code>5 6 7</code> &nbsp; <code>9 0 =</code></li>
-                <li data-i18n-html="help.whiteLower"><strong>Lower Row White Keys (C3–E4):</strong> <code>Z X C V B N M Ö Ç .</code></li>
-                <li data-i18n-html="help.blackLower"><strong>Lower Row Black Keys:</strong> <code>S D</code> &nbsp; <code>G H J</code> &nbsp; <code>L Ş</code></li>
+                <li data-i18n-html="help.whiteLower"><strong>Lower Row White Keys (C3–E4):</strong> <code>Z X C V B N M , . /</code></li>
+                <li data-i18n-html="help.blackLower"><strong>Lower Row Black Keys:</strong> <code>S D</code> &nbsp; <code>G H J</code> &nbsp; <code>L ;</code></li>
               </ul>
             </div>
             <div class="help-section">
@@ -517,7 +458,7 @@
             <div class="help-section">
               <h3 data-i18n="help.section4">4. Quick Shortcuts</h3>
               <ul>
-                <li data-i18n-html="help.s1"><strong>Settings Drawer:</strong> <code>M</code> key</li>
+                <li data-i18n-html="help.s1"><strong>Settings Drawer:</strong> <code>Tab</code> key</li>
                 <li data-i18n-html="help.s2"><strong>Sustain Pedal:</strong> <code>Spacebar</code></li>
                 <li data-i18n-html="help.s3"><strong>Octave / Transpose:</strong> <code>← →</code> and <code>↓ ↑</code> arrow keys</li>
                 <li data-i18n-html="help.s4"><strong>Mute All Notes:</strong> <code>Esc</code></li>
@@ -532,6 +473,7 @@
   <script src="../lib/music-theory.js"></script>
   <script src="../lib/note-highway.js"></script>
   <script src="../lib/midi-parser.js"></script>
+  <script src="../lib/vital-parser.js"></script>
   <script src="../lib/practice-engine.js"></script>
   <script src="./i18n.js"></script>
   <script src="./audio-engine.js"></script>

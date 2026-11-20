@@ -57,6 +57,13 @@
       "icon": "assets/icon.png",
       "synopsis": "Modern offline piano studio and falling-notes MIDI visualizer",
       "artifactName": "Emochord-v2-${version}-x86_64.${ext}",
+      "syncDesktopName": true,
+      "desktop": {
+        "entry": {
+          "Name": "Emochord v2",
+          "StartupWMClass": "emochord-v2"
+        }
+      },
       "mimeTypes": [
         "audio/midi",
         "audio/x-midi"

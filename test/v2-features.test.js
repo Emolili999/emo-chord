@@ -39,4 +39,10 @@ test('v2 Gereksinim 3: Basılan tuş notanın rengine bürünür (Yeşil/Mavi)',
   // Siyah tuşlar da aynı renk ailesindedir
   const rightHandBlack = getNoteColor(66, true, 'classic', 60, 'right');
   assert.equal(rightHandBlack.fill, '#3cb512', 'Sağ el siyah tuşu koyu yeşil (#3cb512) olmalıdır');
+
+  // Zephyr Slate (Varsayılan Masaüstü Teması): Sağ el okyanus mavisi, sol el turkuaz
+  const zephyrRight = getNoteColor(64, false, 'zephyr', 60, 'right');
+  const zephyrLeft = getNoteColor(48, false, 'zephyr', 60, 'left');
+  assert.equal(zephyrRight.fill, '#3daee9', 'Zephyr sağ el notası okyanus mavisi (#3daee9) olmalıdır');
+  assert.equal(zephyrLeft.fill, '#1abc9c', 'Zephyr sol el notası turkuaz (#1abc9c) olmalıdır');
 });

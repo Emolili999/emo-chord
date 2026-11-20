@@ -15,7 +15,7 @@
 
       this.rangeMin = options.minMidi || 36;
       this.rangeMax = options.maxMidi || 96;
-      this.themeId = options.themeId || 'classic';
+      this.themeId = options.themeId || 'zephyr';
       this.baseOctave = options.baseOctave ?? 3;
       this.transpose = options.transpose ?? 0;
       this.labelMode = options.labelMode || 'both';
@@ -72,11 +72,12 @@
 
     flashWrongKey(midi) {
       this.wrongKeyFlashes.set(midi, 1.0);
-      const wrongText = window.EmochordI18n ? window.EmochordI18n.t('visualizer.wrong', 'MISS') : 'MISS';
-      this.spawnFeedbackText(midi, wrongText, '#fb7185');
+      const i18n = root.EmochordI18n || (typeof window !== 'undefined' ? window.EmochordI18n : null);
+      const wrongText = i18n ? i18n.t('visualizer.wrong', 'MISS') : 'MISS';
+      this.spawnFeedbackText(midi, wrongText, '#da4453');
     }
 
-    spawnFeedbackText(midi, text, color = '#2dd4bf') {
+    spawnFeedbackText(midi, text, color = '#3daee9') {
       const key = this.layout.byMidi.get(midi);
       if (!key) return;
       if (this.floatingTexts.length >= MAX_FLOATING_TEXTS) {
@@ -94,7 +95,8 @@
 
     resize() {
       const rect = this.canvas.getBoundingClientRect();
-      this.dpr = Math.min(2, window.devicePixelRatio || 1);
+      const dprSource = typeof window !== 'undefined' ? window.devicePixelRatio : root.devicePixelRatio;
+      this.dpr = Math.min(2, dprSource || 1);
       this.width = Math.max(320, Math.floor(rect.width));
       this.height = Math.max(240, Math.floor(rect.height));
 
@@ -116,45 +118,45 @@
       const kh = this.keybedHeight;
       const blackHeight = Math.round(kh * 0.635);
 
-      // Modern Koyu Stüdyo Sahne Gradyanı
+      // Zephyr Slate Masaüstü Stüdyo Sahne Gradyanı
       const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
-      bgGrad.addColorStop(0, '#050811');
-      bgGrad.addColorStop(0.58, '#090f1d');
-      bgGrad.addColorStop(0.92, '#0e172a');
-      bgGrad.addColorStop(1, '#132038');
+      bgGrad.addColorStop(0, '#16191e');
+      bgGrad.addColorStop(0.6, '#1b1f25');
+      bgGrad.addColorStop(0.92, '#21262e');
+      bgGrad.addColorStop(1, '#262c36');
 
       // Ufuk Çizgisi Ambiyans Işıması
-      const horizonGlowGrad = ctx.createLinearGradient(0, Math.max(0, h - 90), 0, h);
-      horizonGlowGrad.addColorStop(0, 'rgba(45, 212, 191, 0)');
-      horizonGlowGrad.addColorStop(1, 'rgba(45, 212, 191, 0.055)');
+      const horizonGlowGrad = ctx.createLinearGradient(0, Math.max(0, h - 80), 0, h);
+      horizonGlowGrad.addColorStop(0, 'rgba(61, 174, 233, 0)');
+      horizonGlowGrad.addColorStop(1, 'rgba(61, 174, 233, 0.055)');
 
-      // Modern Anodize Metal & Lazer Ufuk Şeridi
+      // Zephyr Slate Metal Ufuk Şeridi
       const railGrad = ctx.createLinearGradient(0, h, 0, h + this.feltHeight);
-      railGrad.addColorStop(0, '#0f172a');
-      railGrad.addColorStop(0.4, '#1e293b');
-      railGrad.addColorStop(0.75, '#0b1120');
-      railGrad.addColorStop(1, '#04070e');
+      railGrad.addColorStop(0, '#2a2f37');
+      railGrad.addColorStop(0.45, '#343b46');
+      railGrad.addColorStop(0.8, '#20242b');
+      railGrad.addColorStop(1, '#14171c');
 
-      // Sedefli Beyaz Tuş Gradyanı
+      // Mat Fildişi / Açık Gri Beyaz Tuş Gradyanı
       const whiteIdleGrad = ctx.createLinearGradient(0, topY, 0, topY + kh - 4);
-      whiteIdleGrad.addColorStop(0, '#eef2f7');
-      whiteIdleGrad.addColorStop(0.06, '#ffffff');
-      whiteIdleGrad.addColorStop(0.84, '#f1f5f9');
-      whiteIdleGrad.addColorStop(0.95, '#d8e1ec');
-      whiteIdleGrad.addColorStop(1, '#94a3b8');
+      whiteIdleGrad.addColorStop(0, '#f3f4f6');
+      whiteIdleGrad.addColorStop(0.06, '#fcfcfd');
+      whiteIdleGrad.addColorStop(0.85, '#eff0f2');
+      whiteIdleGrad.addColorStop(0.95, '#dcdfe4');
+      whiteIdleGrad.addColorStop(1, '#aeb5c0');
 
-      // Saten Karbon Siyah Tuş Gövdesi
+      // Antrasit Siyah Tuş Gövdesi
       const blackIdleOuterGrad = ctx.createLinearGradient(0, topY, 0, topY + blackHeight);
-      blackIdleOuterGrad.addColorStop(0, '#293242');
-      blackIdleOuterGrad.addColorStop(0.82, '#111622');
-      blackIdleOuterGrad.addColorStop(1, '#05070c');
+      blackIdleOuterGrad.addColorStop(0, '#31363f');
+      blackIdleOuterGrad.addColorStop(0.82, '#1f2329');
+      blackIdleOuterGrad.addColorStop(1, '#121519');
 
       // Siyah Tuş Üst Yüzey Yansıması
       const blackIdleTopGrad = ctx.createLinearGradient(0, topY, 0, topY + Math.max(10, blackHeight - 9));
-      blackIdleTopGrad.addColorStop(0, '#404b62');
-      blackIdleTopGrad.addColorStop(0.14, '#262e3d');
-      blackIdleTopGrad.addColorStop(0.92, '#171c26');
-      blackIdleTopGrad.addColorStop(1, '#232b3a');
+      blackIdleTopGrad.addColorStop(0, '#444b57');
+      blackIdleTopGrad.addColorStop(0.14, '#2f343d');
+      blackIdleTopGrad.addColorStop(0.92, '#23272e');
+      blackIdleTopGrad.addColorStop(1, '#2c313a');
 
       this._cachedGrads = {
         bgGrad,
@@ -365,7 +367,8 @@
           ctx.stroke();
 
           if (isMeasure && b > 0 && y > 24 && y < h - 12) {
-            const barWord = window.EmochordI18n ? window.EmochordI18n.t('visualizer.bar', 'BAR') : 'BAR';
+            const i18n = root.EmochordI18n || (typeof window !== 'undefined' ? window.EmochordI18n : null);
+            const barWord = i18n ? i18n.t('visualizer.bar', 'BAR') : 'BAR';
             const label = `${barWord} ${Math.floor(b / 4) + 1}`;
             ctx.fillStyle = 'rgba(148, 163, 196, 0.28)';
             ctx.font = '700 9.5px Inter, system-ui, sans-serif';
@@ -444,7 +447,7 @@
         const w = Math.max(3, key.laneWidth - 1);
         const y = r.y;
         const h = r.height;
-        const radius = Math.min(7, w * 0.34, h * 0.45);
+        const radius = Math.min(4.5, w * 0.26, h * 0.4);
         const isActive = r.isHeld || r.isHitting || r.isWaiting;
 
         ctx.save();
@@ -541,8 +544,8 @@
       ctx.fillStyle = this._cachedGrads.railGrad;
       ctx.fillRect(0, y, w, fh);
 
-      // İnce üst neon ufuk çizgisi
-      ctx.fillStyle = 'rgba(45, 212, 191, 0.28)';
+      // İnce üst ufuk çizgisi (Zephyr vurgu mavisi)
+      ctx.fillStyle = 'rgba(61, 174, 233, 0.42)';
       ctx.fillRect(0, y, w, 1.2);
 
       // 2. Basılı veya bekleyen tuşların tam üzerinde parlayan dinamik LED bar
@@ -585,7 +588,7 @@
 
       // 4. Bekleme modunda hedef nota rehber elması / oku
       if (this.waitingKeys.size > 0) {
-        const bounce = Math.sin(this._pulsePhase * 1.35) * 4;
+        const bounce = Math.sin(this._pulsePhase) * 4;
         ctx.save();
         for (const [midi, info] of this.waitingKeys.entries()) {
           const key = this.layout.byMidi.get(midi);
@@ -670,7 +673,7 @@
       const blackHeight = Math.round(kh * 0.635);
       const pulse = 0.5 + 0.5 * Math.sin(this._pulsePhase);
 
-      ctx.fillStyle = '#05070e';
+      ctx.fillStyle = '#14171c';
       ctx.fillRect(0, topY, this.width, kh);
 
       // 1. Beyaz Tuşlar
@@ -685,7 +688,7 @@
         const w = Math.max(2, wk.width - 1.3);
         const h = pressed ? kh - 2 : kh - 4;
         const y = pressed ? topY + 2 : topY;
-        const bottomRadius = Math.min(6, w * 0.24);
+        const bottomRadius = Math.min(4.5, w * 0.2);
 
         ctx.save();
         if (pressed) {
@@ -778,14 +781,18 @@
             ctx.shadowColor = color.glow;
             ctx.shadowBlur = 8 + pulse * 8;
           }
-        } else if (wrongAlpha > 0) {
-          ctx.fillStyle = '#e11d48';
         } else {
           ctx.fillStyle = this._cachedGrads.blackIdleOuterGrad;
         }
 
         this._roundRectBottom(ctx, x, y, w, h, 4.5);
         ctx.fill();
+
+        if (!pressed && !waiting && wrongAlpha > 0) {
+          ctx.fillStyle = `rgba(225, 29, 72, ${Math.min(1, wrongAlpha * 0.95).toFixed(3)})`;
+          this._roundRectBottom(ctx, x, y, w, h, 4.5);
+          ctx.fill();
+        }
 
         // Siyah tuş 3B üst yüzey (Chamfered Top Surface)
         const inset = Math.max(1.5, w * 0.13);
@@ -795,8 +802,6 @@
           const hand = (pressed || waiting).hand;
           const color = getNoteColor(bk.midi, true, this.themeId, 60, hand);
           ctx.fillStyle = color.top;
-        } else if (wrongAlpha > 0) {
-          ctx.fillStyle = '#fb7185';
         } else if (isSustained) {
           const color = getNoteColor(bk.midi, true, this.themeId, 60);
           ctx.fillStyle = color.border;
@@ -805,6 +810,12 @@
         }
         this._roundRectBottom(ctx, x + inset, y, Math.max(2, w - inset * 2), bevelH, 3);
         ctx.fill();
+
+        if (!pressed && !waiting && wrongAlpha > 0) {
+          ctx.fillStyle = `rgba(251, 113, 133, ${Math.min(1, wrongAlpha * 0.9).toFixed(3)})`;
+          this._roundRectBottom(ctx, x + inset, y, Math.max(2, w - inset * 2), bevelH, 3);
+          ctx.fill();
+        }
 
         // Siyah tuş alt-ön parlama çizgisi
         if (!pressed && !waiting) {
@@ -880,7 +891,7 @@
         ctx.textAlign = 'center';
         ctx.textBaseline = 'bottom';
         ctx.fillText(pcLabel, x + w * 0.5, y + h - 10);
-      } else if (this.labelMode === 'note' || this.labelMode === 'tr') {
+      } else if (this.labelMode === 'both' || this.labelMode === 'note' || this.labelMode === 'tr') {
         const useTr = this.useTurkishNotes || this.labelMode === 'tr';
         const text = useTr ? bk.nameTr : bk.name;
         ctx.fillStyle = isHighlighted ? '#060911' : 'rgba(226, 232, 240, 0.75)';
@@ -920,4 +931,8 @@
   }
 
   root.EmochordVisualizer = { NoteFlowVisualizer };
+
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = root.EmochordVisualizer;
+  }
 })(typeof globalThis !== 'undefined' ? globalThis : this);

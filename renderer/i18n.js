@@ -14,7 +14,7 @@
     en: {
       appName: 'Emochord v2 – Modern Piano & MIDI Practice Studio',
       timelineTooltip: 'Click or drag to jump to any time in the piece',
-      menuToggle: 'Studio Settings & Menu (M)',
+      menuToggle: 'Studio Settings & Menu (Tab)',
       menuToggleAria: 'Settings Menu',
       restart: 'Restart',
       playPause: 'Play / Pause',
@@ -62,7 +62,11 @@
         standby: 'MIDI: Standby',
         connected: 'MIDI: Connected',
         deviceBox: 'USB/MIDI Device',
-        inputStandby: 'MIDI: Standby / Plug & Play'
+        inputStandby: 'MIDI: Standby / Plug & Play',
+        unsupported: 'Web MIDI Not Supported',
+        denied: 'MIDI Access Denied',
+        allDevices: 'All MIDI Devices',
+        defaultDevice: 'MIDI Keyboard'
       },
       buttons: {
         help: 'Keyboard Guide & Shortcuts (?)',
@@ -94,6 +98,9 @@
         turkish_march: '🎼 Mozart – Turkish March (Alla Turca)',
         bach_prelude: '🎼 Bach – Prelude in C Major',
         recorded: '🎙️ My Recording (Free Play)',
+        recordedTitle: 'My Recording',
+        custom_midi: '🎹 Custom MIDI',
+        defaultPiece: 'Piece',
         customPrefix: '🎹 '
       },
       hands: {
@@ -122,17 +129,30 @@
         instrumentLabel: 'Instrument Sound',
         instruments: {
           grand_piano: '🎹 Concert Grand Piano',
+          acoustic_piano: '🎙️ Acoustic Upright Piano',
           electric_piano: '✨ Electric Piano (Rhodes)',
-          neon_synth: '🎛️ Neon Synth',
+          violin: '🎻 Solo Violin',
+          string_ensemble: '🎻 String Ensemble',
+          acoustic_guitar: '🎸 Acoustic Guitar',
+          flute: '🪈 Concert Flute',
+          celesta: '🔔 Celesta & Chimes',
           drawbar_organ: '⛪ Church / Organ',
-          music_box: '💎 Crystal Music Box'
+          music_box: '💎 Crystal Music Box',
+          neon_synth: '🎛️ Neon Synth Lead',
+          synth_pad: '🌌 Warm Ambient Pad'
         },
+        addVital: '+ Import .vital',
+        removeVital: 'Remove',
+        vitalGroup: 'Vital Presets',
+        vitalLoaded: 'Vital Preset Loaded',
+        vitalRemoved: 'Vital Preset Removed',
         sizeLabel: 'Piano Size',
         sizes: {
           '88': '88 Keys (Full Piano A0–C8)',
           '61': '61 Keys (Standard C2–C7)',
           '49': '49 Keys (Studio C2–C6)',
-          '37': '37 Keys (Compact C3–C6)'
+          '37': '37 Keys (Compact C3–C6)',
+          '25': '25 Keys (Mini C3–C5)'
         },
         octaveLabel: 'Octave',
         transposeLabel: 'Transpose',
@@ -141,6 +161,7 @@
       visualsControls: {
         themeLabel: 'Color Theme',
         themes: {
+          zephyr: '🌊 Zephyr Slate (Ocean Blue & Teal)',
           classic: 'Classic (Green & Blue)',
           aurora: '✨ Aurora Fresh (Teal & Sky)',
           luminary: '🔮 Luminary Studio (Purple & Coral)',
@@ -211,17 +232,23 @@
         rhythmDesc: '<strong>⏱️ Rhythm Practice:</strong> The song flows continuously; timing accuracy awards points and combo multipliers.',
         handDesc: '<strong>🤚 Right Hand / ✋ Left Hand:</strong> Pick one hand to practice; the other hand is played automatically by the studio!',
         section2: '2. Computer Keyboard Controls (2 Octaves)',
-        whiteUpper: '<strong>Upper Row White Keys (C4–G5):</strong> <code>Q W E R T Y U I O P Ğ Ü</code>',
+        whiteUpper: '<strong>Upper Row White Keys (C4–G5):</strong> <code>Q W E R T Y U I O P [ ]</code>',
         blackUpper: '<strong>Upper Row Black Keys:</strong> <code>2 3</code> &nbsp; <code>5 6 7</code> &nbsp; <code>9 0 =</code>',
-        whiteLower: '<strong>Lower Row White Keys (C3–E4):</strong> <code>Z X C V B N M Ö Ç .</code>',
-        blackLower: '<strong>Lower Row Black Keys:</strong> <code>S D</code> &nbsp; <code>G H J</code> &nbsp; <code>L Ş</code>',
+        whiteLower: '<strong>Lower Row White Keys (C3–E4):</strong> <code>Z X C V B N M , . /</code>',
+        blackLower: '<strong>Lower Row Black Keys:</strong> <code>S D</code> &nbsp; <code>G H J</code> &nbsp; <code>L ;</code>',
         section3: '3. A–B Loop Practice & Timeline',
         loopDesc: 'Click anywhere on the glowing top timeline bar to scrub immediately. Set A and B points to loop difficult sections on repeat.',
         section4: '4. Quick Shortcuts',
-        s1: '<strong>Settings Drawer:</strong> <code>M</code> key',
+        s1: '<strong>Settings Drawer:</strong> <code>Tab</code> key',
         s2: '<strong>Sustain Pedal:</strong> <code>Spacebar</code>',
         s3: '<strong>Octave / Transpose:</strong> <code>← →</code> and <code>↓ ↑</code> arrow keys',
         s4: '<strong>Mute All Notes:</strong> <code>Esc</code>'
+      },
+      feedback: {
+        perfect: 'PERFECT!',
+        good: 'GOOD!',
+        wrong: 'WRONG KEY',
+        miss: 'MISSED'
       },
       visualizer: {
         wrong: 'MISS',
@@ -232,7 +259,7 @@
     tr: {
       appName: 'Emochord v2 – Modern Piyano & MIDI Pratik Stüdyosu',
       timelineTooltip: 'Parça içinde istediğiniz saniyeye gitmek için tıklayın veya sürükleyin',
-      menuToggle: 'Stüdyo Ayarları ve Menü (M)',
+      menuToggle: 'Stüdyo Ayarları ve Menü (Tab)',
       menuToggleAria: 'Ayarlar Menüsü',
       restart: 'Başa Sar',
       playPause: 'Başlat / Duraklat',
@@ -280,7 +307,11 @@
         standby: 'MIDI: Bekleniyor',
         connected: 'MIDI: Bağlandı',
         deviceBox: 'USB/MIDI Cihazı',
-        inputStandby: 'MIDI: Tak-Çalıştır Bekleniyor'
+        inputStandby: 'MIDI: Tak-Çalıştır Bekleniyor',
+        unsupported: 'Web MIDI Desteklenmiyor',
+        denied: 'MIDI Erişimi Reddedildi',
+        allDevices: 'Tüm MIDI Cihazları',
+        defaultDevice: 'MIDI Klavye'
       },
       buttons: {
         help: 'Klavye Rehberi & Kısayollar (?)',
@@ -312,6 +343,9 @@
         turkish_march: '🎼 Mozart – Türk Marşı (Alla Turca)',
         bach_prelude: '🎼 Bach – C Majör Prelüd',
         recorded: '🎙️ Kaydım (Serbest Çalma)',
+        recordedTitle: 'Serbest Çalma Kaydım',
+        custom_midi: '🎹 Özel MIDI',
+        defaultPiece: 'Parça',
         customPrefix: '🎹 '
       },
       hands: {
@@ -340,17 +374,30 @@
         instrumentLabel: 'Enstrüman Sesi',
         instruments: {
           grand_piano: '🎹 Konser Piyanosu (Grand)',
+          acoustic_piano: '🎙️ Akustik Duvar Piyanosu',
           electric_piano: '✨ Elektrik Piyano (Rhodes)',
-          neon_synth: '🎛️ Neon Synth',
+          violin: '🎻 Solo Keman (Violin)',
+          string_ensemble: '🎻 Yaylı Orkestra (Strings)',
+          acoustic_guitar: '🎸 Akustik Gitar',
+          flute: '🪈 Klasik Flüt',
+          celesta: '🔔 Çelesta & Çanlar',
           drawbar_organ: '⛪ Hammond / Kilise Orgu',
-          music_box: '💎 Kristal Müzik Kutusu'
+          music_box: '💎 Kristal Müzik Kutusu',
+          neon_synth: '🎛️ Neon Synth',
+          synth_pad: '🌌 Sıcak Atmosferik Pad'
         },
+        addVital: '+ .vital Ekle',
+        removeVital: 'Kaldır',
+        vitalGroup: 'Vital Presetler',
+        vitalLoaded: 'Vital Preset Yüklendi',
+        vitalRemoved: 'Vital Preset Kaldırıldı',
         sizeLabel: 'Piyano Boyutu',
         sizes: {
           '88': '88 Tuş (Tam Piyano A0–C8)',
           '61': '61 Tuş (Standart Org C2–C7)',
           '49': '49 Tuş (Stüdyo C2–C6)',
-          '37': '37 Tuş (Kompakt C3–C6)'
+          '37': '37 Tuş (Kompakt C3–C6)',
+          '25': '25 Tuş (Mini C3–C5)'
         },
         octaveLabel: 'Oktav',
         transposeLabel: 'Transpoze',
@@ -359,6 +406,7 @@
       visualsControls: {
         themeLabel: 'Renk Teması',
         themes: {
+          zephyr: '🌊 Zephyr Slate (Okyanus Mavisi & Turkuaz)',
           classic: 'Klasik (Yeşil & Mavi)',
           aurora: '✨ Aurora Fresh (Su Yeşili & Gök)',
           luminary: '🔮 Luminary Studio (Mor & Mercan)',
@@ -431,15 +479,21 @@
         section2: '2. Bilgisayar Klavyesi ile Çalma (2 Oktav)',
         whiteUpper: '<strong>Üst Sıra Beyaz Tuşlar (C4–G5):</strong> <code>Q W E R T Y U I O P Ğ Ü</code>',
         blackUpper: '<strong>Üst Sıra Siyah Tuşlar:</strong> <code>2 3</code> &nbsp; <code>5 6 7</code> &nbsp; <code>9 0 =</code>',
-        whiteLower: '<strong>Lower Row White Keys (C3–E4):</strong> <code>Z X C V B N M Ö Ç .</code>',
+        whiteLower: '<strong>Alt Sıra Beyaz Tuşlar (C3–E4):</strong> <code>Z X C V B N M Ö Ç .</code>',
         blackLower: '<strong>Alt Sıra Siyah Tuşlar:</strong> <code>S D</code> &nbsp; <code>G H J</code> &nbsp; <code>L Ş</code>',
         section3: '3. A–B Bölüm Döngüsü & İlerleme Çubuğu',
         loopDesc: 'Ekranın en üstündeki ışıklı ilerleme çubuğuna tıklayarak istediğiniz saniyeye anında geçiş yapabilirsiniz. Zor kısımlar için A ve B noktalarını seçerek döngüye alabilirsiniz.',
         section4: '4. Hızlı Kısayollar',
-        s1: '<strong>Ayarlar Çekmecesi:</strong> <code>M</code> tuşu',
+        s1: '<strong>Ayarlar Çekmecesi:</strong> <code>Tab</code> tuşu',
         s2: '<strong>Sustain Pedalı:</strong> <code>Boşluk (Space)</code>',
         s3: '<strong>Oktav / Transpoze:</strong> <code>← →</code> ve <code>↓ ↑</code> ok tuşları',
         s4: '<strong>Tüm Sesleri Sustur / Kapat:</strong> <code>Esc</code>'
+      },
+      feedback: {
+        perfect: 'MÜKEMMEL!',
+        good: 'İYİ!',
+        wrong: 'YANLIŞ TUŞ',
+        miss: 'KAÇIRILDI'
       },
       visualizer: {
         wrong: 'YANLIŞ',
